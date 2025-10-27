@@ -1,8 +1,6 @@
 require('dotenv/config');
 const axios = require('axios');
 
-console.log('process.env.META_TOKEN', process.env.META_TOKEN);
-
 const TEST_PHONE_ID = "812126058658049";
 const TO = "972504537753";
 
@@ -18,8 +16,6 @@ const sendMessage = async (message) => {
         }
     });
 
-    console.log('data', data);
-
     const config = {
         method: 'post',
         maxBodyLength: Infinity,
@@ -32,7 +28,7 @@ const sendMessage = async (message) => {
     };
 
     try {
-        const response = await axios.post(config);
+        const response = await axios.request(config);
         console.log(JSON.stringify(response.data))
     } catch (error) {
         console.log(error);
