@@ -1,0 +1,16 @@
+stages:
+    - run
+
+image: node:latest
+
+# This folder is cached between builds
+# https://docs.gitlab.com/ee/ci/yaml/#cache
+cache:
+  paths:
+    - node_modules/
+
+deploy:
+  stage: run
+  script: 
+    - npm ci
+    - npm run good
