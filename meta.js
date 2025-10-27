@@ -21,7 +21,7 @@ const sendMessage = async (message) => {
         maxBodyLength: Infinity,
         url: `https://graph.facebook.com/v24.0/${TEST_PHONE_ID}/messages`,
         headers: { 
-            'Authorization': `Bearer ${process.env.META_TOKEN}`, 
+            'Authorization': `Bearer ${process.env.META_TOKEN}`,
             'Content-Type': 'application/json'
         },
         data : data
