@@ -1,35 +1,33 @@
 stages:
-  # - install
+  - install
   - run
 
 image: node:latest
 
-# default:
-#   cache:
-#     key:
-#       files:
-#         - package-lock.json
-#     paths:
-#       - node_modules/
-#     when: 'on_success'
-#     policy: push
+.cache: &cache
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+  when: 'on_success'
+  policy: push
 
-# install:
-#   stage: install
-#   script: 
-#     - npm ci
-#   rules:
-#     - changes:
-#         - package-lock.json
-#   cache:
-#     policy: push
+install:
+  stage: install
+  script: 
+    - npm ci
+  rules:
+    - changes:
+        - package-lock.json
+  cache:
+    <<: *cache
+    policy: push
 
 run:
   stage: run
   script:
-    - env
-    - printenv META_TOKEN
-    - npm ci
     - npm run good
-  # cache:
-  #   policy: pull
+  cache:
+    <<: *cache
+    policy: pull
