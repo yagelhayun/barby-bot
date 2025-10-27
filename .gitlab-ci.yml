@@ -1,16 +1,32 @@
 stages:
-    - run
+  - install
+  - run
 
 image: node:latest
 
-# This folder is cached between builds
-# https://docs.gitlab.com/ee/ci/yaml/#cache
-cache:
-  paths:
-    - node_modules/
+default:
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - node_modules/
+    when: 'on_success'
+    policy: push
 
-deploy:
-  stage: run
+install:
+  stage: install
   script: 
     - npm ci
+  rules:
+    - changes:
+        - package-lock.json
+  cache:
+    policy: push
+
+run:
+  stage: run
+  script:
     - npm run good
+  cache:
+    policy: pull
