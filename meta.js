@@ -1,10 +1,11 @@
 require('dotenv/config');
 const axios = require('axios');
+const { getShows } = require('./shows');
 
 const TEST_PHONE_ID = "812126058658049";
 const TO = "972504537753";
 
-const sendMessage = async (message) => {
+const sendMessage = async (show) => {
     const data = JSON.stringify({
         "messaging_product": "whatsapp",
         "to": TO,
@@ -12,7 +13,7 @@ const sendMessage = async (message) => {
         "type": "text",
         "text": {
             "preview_url": true,
-            "body": message
+            "body": show
         }
     });
 
@@ -27,12 +28,22 @@ const sendMessage = async (message) => {
         data
     };
 
-    try {
-        const response = await axios.request(config);
-        console.log(JSON.stringify(response.data))
-    } catch (error) {
-        console.log(error);
-    }
+    await axios.request(config);
 }
 
-sendMessage("zorem li liad");
+const main = async () => {
+    const shows = await getShows("טונה");
+
+    const messages = shows.map(async (show) => {
+        try {
+            await sendMessage(show);
+            console.log('Successfully sent message');
+        } catch (error) {
+            console.error("Couldn't send message", error);
+        }
+    });
+
+    await Promise.all(messages);
+}
+
+main();
