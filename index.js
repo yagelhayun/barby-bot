@@ -16,7 +16,7 @@ const sendMessage = async (message, chatId) => {
     }
 }
 
-const main = async () => {
+export const main = async () => {
     const artist = "טונה";
 
     try {
@@ -41,5 +41,3 @@ const main = async () => {
         }
     }
 }
-
-main();
