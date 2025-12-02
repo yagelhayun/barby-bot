@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const BARBY_URL = 'https://barby.co.il';
 
@@ -34,7 +34,7 @@ const fetchArtistShows = async (artist) => {
     }
 }
 
-const getShows = async (artist) => {
+export const getShows = async (artist) => {
     const shows = await fetchArtistShows(artist);
 
     if (shows.length) {
@@ -52,5 +52,3 @@ const getShows = async (artist) => {
         return [`אין הופעות של ${artist} כעת :(`];
     }
 }
-
-module.exports = { getShows };
