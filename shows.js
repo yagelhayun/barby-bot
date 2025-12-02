@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { BarbyAPIError, NoShowsError } from "./errors.js";
 
 const BARBY_URL = 'https://barby.co.il';
 
-const fetchArtistShows = async (artist) => {
+const getShows = async () => {
     try {
         console.log(`Fetching shows from ${BARBY_URL}`);
 
@@ -15,27 +16,22 @@ const fetchArtistShows = async (artist) => {
 
         console.log("Received shows data");
 
-        const shows = response
+        return response
             .data
             .returnShow
-            .show
-            .filter(({ showName, showSold, showSoldMaxBuy }) => showName.includes(artist) && showSold < showSoldMaxBuy);
-
-        return shows;
+            .show;
     } catch (error) {
-        if (error.response) {
-            console.error('HTTP Error:', error.response.status);
-            console.error(error.response.data);
-        } else {
-            console.error('Network Error:', error.message);
-        }
-
-        throw error;
+        throw new BarbyAPIError(error);
     }
 }
 
-export const getShows = async (artist) => {
-    const shows = await fetchArtistShows(artist);
+const getArtistShows = async (artist) => {
+    const allShows = await getShows();
+    return allShows.filter(({ showName, showSold, showSoldMaxBuy }) => showName.includes(artist) && showSold < showSoldMaxBuy);
+}
+
+export const generateShowMessage = async (artist) => {
+    const shows = await getArtistShows(artist);
 
     if (shows.length) {
         const relevantData = shows.map(({ showDate, showTime, showPrice, showName, showId }) => (`
@@ -49,6 +45,6 @@ export const getShows = async (artist) => {
 
         return relevantData;
     } else {
-        return [`אין הופעות של ${artist} כעת :(`];
+        throw new NoShowsError(artist);
     }
 }

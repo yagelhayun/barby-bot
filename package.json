@@ -1,11 +1,11 @@
 {
   "name": "tuna-barby",
   "version": "1.0.0",
-  "description": "",
-  "main": "telegram.js",
+  "description": "Tuna Shows in Barby - Telegram Bot",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node telegram.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
