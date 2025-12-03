@@ -1,0 +1,43 @@
+name: Deploy Lambda using Terraform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Lambda dependencies
+        working-directory: lambda
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.5.0'
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: >-
+          terraform apply -auto-approve
+          -var "bot_token=${{ secrets.BOT_TOKEN }}"
+          -var "events_chat_id=${{ secrets.EVENTS_CHAT_ID }}"
+          -var "health_chat_id=${{ secrets.HEALTH_CHAT_ID }}"
