@@ -38,7 +38,7 @@ export const generateShowMessage = async (artist) => {
 שם המופע: ${showName}
 תאריך: ${showDate}
 שעה: ${showTime}
-מחיר: ${showPrice}
+מחיר: ${showPrice}₪
 קישור: ${BARBY_URL}/show/${showId}
             `.trimStart().trimEnd()
         ));
