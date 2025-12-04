@@ -25,11 +25,18 @@ jobs:
         working-directory: lambda
         run: npm ci
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC role assumption)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Authenticator
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Configure AWS credentials (assume Authorizer role via role chaining)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Authorizer
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-chaining: true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
