@@ -18,9 +18,6 @@ This repo deploys a Node.js AWS Lambda that calls the Barby API and notifies a T
 
 Set the following repository secrets in GitHub settings > Secrets & variables > Actions:
 
-
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
 - `AWS_REGION`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_EVENTS_CHAT_ID`
