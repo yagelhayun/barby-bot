@@ -49,8 +49,8 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Plan
-        run: terraform plan        
+      # - name: Terraform Plan # add var inputs later
+      #   run: terraform plan        
 
       - name: Terraform Apply
         run: >-
