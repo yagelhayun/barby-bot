@@ -21,7 +21,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-# IAM role for Lambda
 resource "aws_iam_role" "lambda_role" {
   name = "tuna_barby_lambda_role"
 
@@ -67,10 +66,9 @@ resource "aws_lambda_function" "tuna_barby" {
   }
 }
 
-# EventBridge rule (cron)
 resource "aws_cloudwatch_event_rule" "schedule" {
   name                = "tuna_barby_schedule"
-  schedule_expression = "cron(0 10 * * ? *)" # every day at 10AM
+  schedule_expression = "cron(0 */8 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "target" {
