@@ -52,6 +52,7 @@ jobs:
       - name: Terraform Plan
         run: >-
           terraform plan
+          -var "aws_region=${{ secrets.AWS_REGION }}"
           -var "bot_token=${{ secrets.BOT_TOKEN }}"
           -var "events_chat_id=${{ secrets.EVENTS_CHAT_ID }}"
           -var "health_chat_id=${{ secrets.HEALTH_CHAT_ID }}"
@@ -59,6 +60,7 @@ jobs:
       - name: Terraform Apply
         run: >-
           terraform apply -auto-approve
+          -var "aws_region=${{ secrets.AWS_REGION }}"
           -var "bot_token=${{ secrets.BOT_TOKEN }}"
           -var "events_chat_id=${{ secrets.EVENTS_CHAT_ID }}"
           -var "health_chat_id=${{ secrets.HEALTH_CHAT_ID }}"
