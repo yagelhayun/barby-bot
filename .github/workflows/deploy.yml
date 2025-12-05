@@ -9,6 +9,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
