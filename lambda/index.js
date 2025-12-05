@@ -1,4 +1,4 @@
-import 'dotenv/config';
+// import 'dotenv/config';
 import axios, { AxiosError } from 'axios';
 import { generateShowMessage } from './shows.js';
 import { BarbyAPIError, NoShowsError, TelegramAPIError } from './errors.js';

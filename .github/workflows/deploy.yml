@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 env:
-  TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+  TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
 
 jobs:
   deploy:
@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Lambda dependencies
         working-directory: lambda
-        run: npm ci
+        run: npm ci --omit=dev
 
       - name: Configure AWS credentials (OIDC role assumption)
         uses: aws-actions/configure-aws-credentials@v4
@@ -49,8 +49,12 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # - name: Terraform Plan # add var inputs later
-      #   run: terraform plan        
+      - name: Terraform Plan
+        run: >-
+          terraform plan
+          -var "bot_token=${{ secrets.BOT_TOKEN }}"
+          -var "events_chat_id=${{ secrets.EVENTS_CHAT_ID }}"
+          -var "health_chat_id=${{ secrets.HEALTH_CHAT_ID }}"
 
       - name: Terraform Apply
         run: >-
