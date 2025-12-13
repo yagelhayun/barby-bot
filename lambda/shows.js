@@ -23,26 +23,24 @@ const getShows = async () => {
     return data?.returnShow?.show;
 }
 
-const getArtistShows = async (artist) => {
-    const allShows = await getShows();
-    return allShows.filter(({ showName, showSold, showSoldMaxBuy }) => showName.includes(artist) && showSold < showSoldMaxBuy);
-}
-
-export const generateShowMessage = async (artist) => {
-    const shows = await getArtistShows(artist);
-
-    if (shows.length) {
-        const messages = shows.map(({ showDate, showTime, showPrice, showName, showId }) => (`
+const generateMessage = ({ showName, showDate, showTime, showPrice, showId }) => `
 שם המופע: ${showName}
 תאריך: ${showDate}
 שעה: ${showTime}
 מחיר: ${showPrice}₪
 קישור: ${BARBY_URL}/show/${showId}
-            `.trimStart().trimEnd()
-        ));
+`.trimStart().trimEnd()
 
-        return messages;
-    } else {
-        throw new NoShowsError(artist);
+export const getArtistShows = async (artists) => {
+    const allShows = await getShows();
+    const relevantData = allShows.filter(({ showName, showSold, showSoldMaxBuy }) => artists.some(artist => showName.includes(artist)) && showSold < showSoldMaxBuy);
+
+    if (!relevantData.length) {
+        throw new NoShowsError(artists);
     }
+
+    return artists.map(artist => ({
+        artist,
+        shows: relevantData.filter(({ showName }) => showName.includes(artist)).map(generateMessage)
+    }));
 }

@@ -1,16 +1,25 @@
 variable "bot_token" {
     type = string
-    description = "Telegram bot token from BotFather"
+    description = "Bot token from BotFather"
+}
+variable "yonibloch_events_chat_id" {
+    type = string
+    description = "Yoni Bloch events group chat ID"
 }
 
-variable "events_chat_id" {
+variable "tuna_events_chat_id" {
     type = string
-    description = "Telegram events group chat ID"
+    description = "Tuna events group chat ID"
 }
 
 variable "health_chat_id" {
     type = string
-    description = "Telegram health group chat ID"
+    description = "Health group chat ID"
+}
+
+variable "node_env" {
+    type = string
+    default = "production"
 }
 
 variable "aws_region" {

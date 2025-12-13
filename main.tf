@@ -59,9 +59,11 @@ resource "aws_lambda_function" "tuna_barby" {
 
   environment {
     variables = {
-      TELEGRAM_BOT_TOKEN = var.bot_token
-      TELEGRAM_EVENTS_CHAT_ID   = var.events_chat_id
-      TELEGRAM_HEALTH_CHAT_ID   = var.health_chat_id
+      BOT_TOKEN                 = var.bot_token
+      TUNA_EVENTS_CHAT_ID       = var.tuna_events_chat_id
+      YONIBLOCH_EVENTS_CHAT_ID  = var.yonibloch_events_chat_id
+      HEALTH_CHAT_ID            = var.health_chat_id
+      NODE_ENV                  = var.node_env
     }
   }
 }
@@ -69,7 +71,6 @@ resource "aws_lambda_function" "tuna_barby" {
 resource "aws_cloudwatch_event_rule" "schedule" {
   name                         = "tuna_barby_schedule"
   schedule_expression          = "cron(0 */8 * * ? *)"
-  schedule_expression_timezone = "Asia/Jerusalem"
 }
 
 resource "aws_cloudwatch_event_target" "target" {

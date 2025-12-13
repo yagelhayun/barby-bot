@@ -19,9 +19,10 @@ This repo deploys a Node.js AWS Lambda that calls the Barby API and notifies a T
 Set the following repository secrets in GitHub settings > Secrets & variables > Actions:
 
 - `AWS_REGION`
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_EVENTS_CHAT_ID`
-- `TELEGRAM_HEALTH_CHAT_ID` (Used to signal that everything works)
+- `BOT_TOKEN`
+- `TUNA_EVENTS_CHAT_ID`
+- `YONIBLOCH_EVENTS_CHAT_ID`
+- `HEALTH_CHAT_ID` (Used to signal that everything works)
 
 
 ### How it works
@@ -49,4 +50,4 @@ terraform apply
 ### How to retrieve the group chat ID in Telegram
 
 
-Open this in a browser: https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
+Open this in a browser: https://api.telegram.org/bot<BOT_TOKEN>/getUpdates
