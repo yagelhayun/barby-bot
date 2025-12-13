@@ -4,7 +4,7 @@ import { sendMessage } from './telegram.js';
 import { generateShowMessage } from './shows.js';
 
 export const main = async () => {
-    const artist = "טונה";
+    const artist = "טונה"; // yoni bloch
 
     try {
         const shows = await generateShowMessage(artist);

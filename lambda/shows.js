@@ -32,7 +32,7 @@ export const generateShowMessage = async (artist) => {
     const shows = await getArtistShows(artist);
 
     if (shows.length) {
-        const relevantData = shows.map(({ showDate, showTime, showPrice, showName, showId }) => (`
+        const messages = shows.map(({ showDate, showTime, showPrice, showName, showId }) => (`
 שם המופע: ${showName}
 תאריך: ${showDate}
 שעה: ${showTime}
@@ -41,7 +41,7 @@ export const generateShowMessage = async (artist) => {
             `.trimStart().trimEnd()
         ));
 
-        return relevantData;
+        return messages;
     } else {
         throw new NoShowsError(artist);
     }
