@@ -67,8 +67,9 @@ resource "aws_lambda_function" "tuna_barby" {
 }
 
 resource "aws_cloudwatch_event_rule" "schedule" {
-  name                = "tuna_barby_schedule"
-  schedule_expression = "cron(0 */8 * * ? *)"
+  name                         = "tuna_barby_schedule"
+  schedule_expression          = "cron(0 */8 * * ? *)"
+  schedule_expression_timezone = "Asia/Jerusalem"
 }
 
 resource "aws_cloudwatch_event_target" "target" {
