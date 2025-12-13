@@ -1,25 +1,26 @@
-import axios from 'axios';
 import { BarbyAPIError, NoShowsError } from "./errors.js";
 
 const BARBY_URL = 'https://barby.co.il';
 
 const getShows = async () => {
-    try {
-        console.log(`Fetching shows from ${BARBY_URL}`);
+    console.log(`Fetching shows from ${BARBY_URL}`);
 
-        const { data } = await axios.get(`${BARBY_URL}/api/shows/find`, {
-            headers: {
-                'referer': BARBY_URL,
-                // 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
-            },
-        });
+    const res = await fetch(`${BARBY_URL}/api/shows/find`, {
+        method: 'GET',
+        headers: {
+            'referer': BARBY_URL,
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
+        },
+    });
 
-        console.log("Received shows data");
-
-        return data.returnShow.show;
-    } catch (error) {
-        throw new BarbyAPIError(error);
+    if (!res.ok) {
+        throw new BarbyAPIError(res);
     }
+
+    const data = await res.json();
+    console.log("Received shows data");
+
+    return data?.returnShow?.show;
 }
 
 const getArtistShows = async (artist) => {

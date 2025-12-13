@@ -1,20 +1,7 @@
-// import 'dotenv/config';
-import axios, { AxiosError } from 'axios';
+import 'dotenv/config';
+import { NoShowsError } from './errors.js';
+import { sendMessage } from './telegram.js';
 import { generateShowMessage } from './shows.js';
-import { BarbyAPIError, NoShowsError, TelegramAPIError } from './errors.js';
-
-const sendMessage = async (message, chatId) => {
-    try {
-        await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            chat_id: chatId,
-            text: message
-        });
-    } catch (error) {
-        if (error instanceof AxiosError) {
-            throw new TelegramAPIError(error);
-        }
-    }
-}
 
 export const main = async () => {
     const artist = "טונה";
@@ -32,12 +19,14 @@ export const main = async () => {
             try {
                 await sendMessage(error.message, process.env.TELEGRAM_HEALTH_CHAT_ID);
             } catch (err) {
-                if (err instanceof TelegramAPIError) {
-                    console.error(err);
-                }
+                console.error(err);
             }
-        } else if (error instanceof BarbyAPIError || error instanceof TelegramAPIError) {
+        } else {
             console.error(error);
         }
     }
+}
+
+if (process.env.NODE_ENV === 'development') {
+    main();
 }

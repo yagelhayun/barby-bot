@@ -1,7 +1,5 @@
-.env
+*.env
 node_modules/
-lambda.zip
-.terraform/
-.terraform.lock.hcl
-*.tfstate
-*.tfstate.backup
+*.zip
+.terraform*
+*.tfstate*
