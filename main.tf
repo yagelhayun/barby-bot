@@ -18,7 +18,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = var.AWS_REGION
 }
 
 resource "aws_iam_role" "lambda_role" {
@@ -59,11 +59,12 @@ resource "aws_lambda_function" "tuna_barby" {
 
   environment {
     variables = {
-      BOT_TOKEN                 = var.bot_token
-      TUNA_EVENTS_CHAT_ID       = var.tuna_events_chat_id
-      YONIBLOCH_EVENTS_CHAT_ID  = var.yonibloch_events_chat_id
-      HEALTH_CHAT_ID            = var.health_chat_id
-      NODE_ENV                  = var.node_env
+      BOT_TOKEN                 = var.BOT_TOKEN
+      TUNA_EVENTS_CHAT_ID       = var.TUNA_EVENTS_CHAT_ID
+      DUDUTASA_EVENTS_CHAT_ID   = var.DUDUTASA_EVENTS_CHAT_ID
+      YONIBLOCH_EVENTS_CHAT_ID  = var.YONIBLOCH_EVENTS_CHAT_ID
+      HEALTH_CHAT_ID            = var.HEALTH_CHAT_ID
+      NODE_ENV                  = var.NODE_ENV
     }
   }
 }

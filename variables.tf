@@ -1,28 +1,33 @@
-variable "bot_token" {
+variable "BOT_TOKEN" {
     type = string
     description = "Bot token from BotFather"
 }
-variable "yonibloch_events_chat_id" {
+variable "YONIBLOCH_EVENTS_CHAT_ID" {
     type = string
     description = "Yoni Bloch events group chat ID"
 }
 
-variable "tuna_events_chat_id" {
+variable "TUNA_EVENTS_CHAT_ID" {
     type = string
     description = "Tuna events group chat ID"
 }
 
-variable "health_chat_id" {
+variable "DUDUTASA_EVENTS_CHAT_ID" {
+    type = string
+    description = "Dudu Tasa events group chat ID"
+}
+
+variable "HEALTH_CHAT_ID" {
     type = string
     description = "Health group chat ID"
 }
 
-variable "node_env" {
+variable "NODE_ENV" {
     type = string
     default = "production"
 }
 
-variable "aws_region" {
+variable "AWS_REGION" {
     type = string
     default = "il-central-1"
 }

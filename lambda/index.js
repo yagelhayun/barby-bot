@@ -7,6 +7,7 @@ export const main = async () => {
     const artists = {
         'טונה': process.env.TUNA_EVENTS_CHAT_ID,
         'יוני בלוך': process.env.YONIBLOCH_EVENTS_CHAT_ID,
+        'דודו טסה': process.env.DUDUTASA_EVENTS_CHAT_ID
     };
 
     try {

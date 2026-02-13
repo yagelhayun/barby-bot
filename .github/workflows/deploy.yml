@@ -52,17 +52,19 @@ jobs:
       - name: Terraform Plan
         run: >-
           terraform plan
-          -var "aws_region=${{ secrets.AWS_REGION }}"
-          -var "bot_token=${{ secrets.BOT_TOKEN }}"
-          -var "tuna_events_chat_id=${{ secrets.TUNA_EVENTS_CHAT_ID }}"
-          -var "yonibloch_events_chat_id=${{ secrets.YONIBLOCH_EVENTS_CHAT_ID }}"
-          -var "health_chat_id=${{ secrets.HEALTH_CHAT_ID }}"
+          -var "AWS_REGION=${{ secrets.AWS_REGION }}"
+          -var "BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
+          -var "TUNA_EVENTS_CHAT_ID=${{ secrets.TUNA_EVENTS_CHAT_ID }}"
+          -var "DUDUTASA_EVENTS_CHAT_ID=${{ secrets.DUDUTASA_EVENTS_CHAT_ID }}"
+          -var "YONIBLOCH_EVENTS_CHAT_ID=${{ secrets.YONIBLOCH_EVENTS_CHAT_ID }}"
+          -var "HEALTH_CHAT_ID=${{ secrets.HEALTH_CHAT_ID }}"
 
       - name: Terraform Apply
         run: >-
           terraform apply -auto-approve
-          -var "aws_region=${{ secrets.AWS_REGION }}"
-          -var "bot_token=${{ secrets.BOT_TOKEN }}"
-          -var "tuna_events_chat_id=${{ secrets.TUNA_EVENTS_CHAT_ID }}"
-          -var "yonibloch_events_chat_id=${{ secrets.YONIBLOCH_EVENTS_CHAT_ID }}"
-          -var "health_chat_id=${{ secrets.HEALTH_CHAT_ID }}"
+          -var "AWS_REGION=${{ secrets.AWS_REGION }}"
+          -var "BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
+          -var "TUNA_EVENTS_CHAT_ID=${{ secrets.TUNA_EVENTS_CHAT_ID }}"
+          -var "DUDUTASA_EVENTS_CHAT_ID=${{ secrets.DUDUTASA_EVENTS_CHAT_ID }}"
+          -var "YONIBLOCH_EVENTS_CHAT_ID=${{ secrets.YONIBLOCH_EVENTS_CHAT_ID }}"
+          -var "HEALTH_CHAT_ID=${{ secrets.HEALTH_CHAT_ID }}"
