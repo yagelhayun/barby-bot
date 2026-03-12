@@ -32,13 +32,13 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Authenticator
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       # - name: Configure AWS credentials (assume Authorizer role via role chaining)
       #   uses: aws-actions/configure-aws-credentials@v4
       #   with:
       #     role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Authorizer
-      #     aws-region: ${{ secrets.AWS_REGION }}
+      #     aws-region: ${{ vars.AWS_REGION }}
       #     role-chaining: true
 
       - name: Setup Terraform
