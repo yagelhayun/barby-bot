@@ -1,27 +1,3 @@
-variable "BOT_TOKEN" {
-    type = string
-    description = "Bot token from BotFather"
-}
-variable "YONIBLOCH_EVENTS_CHAT_ID" {
-    type = string
-    description = "Yoni Bloch events group chat ID"
-}
-
-variable "TUNA_EVENTS_CHAT_ID" {
-    type = string
-    description = "Tuna events group chat ID"
-}
-
-variable "DUDUTASA_EVENTS_CHAT_ID" {
-    type = string
-    description = "Dudu Tasa events group chat ID"
-}
-
-variable "HEALTH_CHAT_ID" {
-    type = string
-    description = "Health group chat ID"
-}
-
 variable "NODE_ENV" {
     type = string
     default = "production"
@@ -30,4 +6,36 @@ variable "NODE_ENV" {
 variable "AWS_REGION" {
     type = string
     default = "il-central-1"
+}
+
+variable "BOT_TOKEN" {
+    type = string
+    sensitive = true
+    description = "Bot token from BotFather"
+}
+
+variable "HEALTH_CHAT_ID" {
+    type = string
+    description = "Health group chat ID"
+}
+
+variable "DATABASE_USER" {
+    type = string
+}
+
+variable "DATABASE_PASSWORD" {
+    type = string
+    sensitive = true
+}
+
+variable "DATABASE_HOST" {
+    type = string
+}
+
+variable "DATABASE_PORT" {
+    type = number
+}
+
+variable "DATABASE_NAME" {
+    type = string
 }

@@ -1,14 +1,11 @@
 import 'dotenv/config';
+import { getArtists } from './artists.js';
 import { NoShowsError } from './errors.js';
 import { sendMessage } from './telegram.js';
 import { getArtistShows } from './shows.js';
 
 export const main = async () => {
-    const artists = {
-        'טונה': process.env.TUNA_EVENTS_CHAT_ID,
-        'יוני בלוך': process.env.YONIBLOCH_EVENTS_CHAT_ID,
-        'דודו טסה': process.env.DUDUTASA_EVENTS_CHAT_ID
-    };
+    const artists = await getArtists();
 
     try {
         const artistShows = await getArtistShows(Object.keys(artists));

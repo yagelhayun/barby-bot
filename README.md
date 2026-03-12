@@ -1,7 +1,7 @@
-# Lambda Tuna Concert in Barby (Terraform + GitHub Actions)
+# Lambda Barby Bot
 
 
-This repo deploys a Node.js AWS Lambda that calls the Barby API and notifies a Telegram group via bot when Tuna concerts availability changes. It uses Terraform to create the Lambda and EventBridge schedule, and GitHub Actions to automate packaging and deployment.
+This repo deploys a Node.js AWS Lambda that calls the Barby API and notifies a Telegram group via bot when desired artists concerts availability changes. It uses Terraform to create the Lambda and EventBridge schedule, and GitHub Actions to automate packaging and deployment.
 
 
 ### What you need
@@ -20,8 +20,6 @@ Set the following repository secrets in GitHub settings > Secrets & variables > 
 
 - `AWS_REGION`
 - `BOT_TOKEN`
-- `TUNA_EVENTS_CHAT_ID`
-- `YONIBLOCH_EVENTS_CHAT_ID`
 - `HEALTH_CHAT_ID` (Used to signal that everything works)
 
 

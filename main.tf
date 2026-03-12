@@ -22,7 +22,7 @@ provider "aws" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "tuna_barby_lambda_role"
+  name = "barby_bot_lambda_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -45,8 +45,8 @@ data "archive_file" "lambda_zip" {
   output_path = "${path.module}/lambda.zip"
 }
 
-resource "aws_lambda_function" "tuna_barby" {
-  function_name = "tuna_barby"
+resource "aws_lambda_function" "barby_bot" {
+  function_name = "barby_bot"
   filename      = data.archive_file.lambda_zip.output_path
   handler       = "index.main"
   runtime       = "nodejs24.x"
@@ -59,38 +59,40 @@ resource "aws_lambda_function" "tuna_barby" {
 
   environment {
     variables = {
-      BOT_TOKEN                 = var.BOT_TOKEN
-      TUNA_EVENTS_CHAT_ID       = var.TUNA_EVENTS_CHAT_ID
-      DUDUTASA_EVENTS_CHAT_ID   = var.DUDUTASA_EVENTS_CHAT_ID
-      YONIBLOCH_EVENTS_CHAT_ID  = var.YONIBLOCH_EVENTS_CHAT_ID
-      HEALTH_CHAT_ID            = var.HEALTH_CHAT_ID
-      NODE_ENV                  = var.NODE_ENV
+      BOT_TOKEN         = var.BOT_TOKEN
+      NODE_ENV          = var.NODE_ENV
+      DATABASE_USER     = var.DATABASE_USER
+      DATABASE_PASSWORD = var.DATABASE_PASSWORD
+      DATABASE_HOST     = var.DATABASE_HOST
+      DATABASE_PORT     = var.DATABASE_PORT
+      DATABASE_NAME     = var.DATABASE_NAME
+      HEALTH_CHAT_ID    = var.HEALTH_CHAT_ID
     }
   }
 }
 
 resource "aws_cloudwatch_event_rule" "schedule" {
-  name                         = "tuna_barby_schedule"
-  schedule_expression          = "cron(0 */8 * * ? *)"
+  name                = "barby_bot_schedule"
+  schedule_expression = "cron(0 */8 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "target" {
   rule      = aws_cloudwatch_event_rule.schedule.name
   target_id = "lambda"
-  arn       = aws_lambda_function.tuna_barby.arn
+  arn       = aws_lambda_function.barby_bot.arn
 }
 
 # Permission for EventBridge to invoke Lambda
 resource "aws_lambda_permission" "allow_eventbridge" {
   statement_id  = "AllowExecutionFromEventBridge"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.tuna_barby.function_name
+  function_name = aws_lambda_function.barby_bot.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.schedule.arn
 }
 
 output "lambda_function_name" {
-  value = aws_lambda_function.tuna_barby.function_name
+  value = aws_lambda_function.barby_bot.function_name
 }
 
 output "schedule_rule" {

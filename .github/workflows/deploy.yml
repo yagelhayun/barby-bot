@@ -54,17 +54,21 @@ jobs:
           terraform plan
           -var "AWS_REGION=${{ secrets.AWS_REGION }}"
           -var "BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
-          -var "TUNA_EVENTS_CHAT_ID=${{ secrets.TUNA_EVENTS_CHAT_ID }}"
-          -var "DUDUTASA_EVENTS_CHAT_ID=${{ secrets.DUDUTASA_EVENTS_CHAT_ID }}"
-          -var "YONIBLOCH_EVENTS_CHAT_ID=${{ secrets.YONIBLOCH_EVENTS_CHAT_ID }}"
           -var "HEALTH_CHAT_ID=${{ secrets.HEALTH_CHAT_ID }}"
+          -var "DATABASE_USER=${{ secrets.DATABASE_USER }}"
+          -var "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}"
+          -var "DATABASE_HOST=${{ secrets.DATABASE_HOST }}"
+          -var "DATABASE_PORT=${{ secrets.DATABASE_PORT }}"
+          -var "DATABASE_NAME=${{ secrets.DATABASE_NAME }}"
 
       - name: Terraform Apply
         run: >-
           terraform apply -auto-approve
           -var "AWS_REGION=${{ secrets.AWS_REGION }}"
           -var "BOT_TOKEN=${{ secrets.BOT_TOKEN }}"
-          -var "TUNA_EVENTS_CHAT_ID=${{ secrets.TUNA_EVENTS_CHAT_ID }}"
-          -var "DUDUTASA_EVENTS_CHAT_ID=${{ secrets.DUDUTASA_EVENTS_CHAT_ID }}"
-          -var "YONIBLOCH_EVENTS_CHAT_ID=${{ secrets.YONIBLOCH_EVENTS_CHAT_ID }}"
           -var "HEALTH_CHAT_ID=${{ secrets.HEALTH_CHAT_ID }}"
+          -var "DATABASE_USER=${{ secrets.DATABASE_USER }}"
+          -var "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}"
+          -var "DATABASE_HOST=${{ secrets.DATABASE_HOST }}"
+          -var "DATABASE_PORT=${{ secrets.DATABASE_PORT }}"
+          -var "DATABASE_NAME=${{ secrets.DATABASE_NAME }}"
