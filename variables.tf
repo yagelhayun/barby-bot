@@ -8,10 +8,16 @@ variable "AWS_REGION" {
     default = "il-central-1"
 }
 
-variable "BOT_TOKEN" {
+variable "NOTIFICATIONS_BOT_TOKEN" {
     type = string
     sensitive = true
-    description = "Bot token from BotFather"
+    description = "Notifications bot token from BotFather"
+}
+
+variable "ADMIN_BOT_TOKEN" {
+    type = string
+    sensitive = true
+    description = "Admin bot token from BotFather"
 }
 
 variable "HEALTH_CHAT_ID" {

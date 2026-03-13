@@ -59,14 +59,15 @@ resource "aws_lambda_function" "barby_bot" {
 
   environment {
     variables = {
-      BOT_TOKEN         = var.BOT_TOKEN
-      NODE_ENV          = var.NODE_ENV
-      DATABASE_USER     = var.DATABASE_USER
-      DATABASE_PASSWORD = var.DATABASE_PASSWORD
-      DATABASE_HOST     = var.DATABASE_HOST
-      DATABASE_PORT     = var.DATABASE_PORT
-      DATABASE_NAME     = var.DATABASE_NAME
-      HEALTH_CHAT_ID    = var.HEALTH_CHAT_ID
+      NOTIFICATIONS_BOT_TOKEN = var.NOTIFICATIONS_BOT_TOKEN
+      ADMIN_BOT_TOKEN         = var.ADMIN_BOT_TOKEN
+      NODE_ENV                = var.NODE_ENV
+      DATABASE_USER           = var.DATABASE_USER
+      DATABASE_PASSWORD       = var.DATABASE_PASSWORD
+      DATABASE_HOST           = var.DATABASE_HOST
+      DATABASE_PORT           = var.DATABASE_PORT
+      DATABASE_NAME           = var.DATABASE_NAME
+      HEALTH_CHAT_ID          = var.HEALTH_CHAT_ID
     }
   }
 }
@@ -91,10 +92,33 @@ resource "aws_lambda_permission" "allow_eventbridge" {
   source_arn    = aws_cloudwatch_event_rule.schedule.arn
 }
 
+resource "aws_lambda_function_url" "barby_bot_url" {
+  function_name      = aws_lambda_function.barby_bot.function_name
+  authorization_type = "NONE"
+
+  cors {
+    allow_origins = ["*"]
+    allow_methods = ["POST"]
+  }
+}
+
+resource "aws_lambda_permission" "allow_public_url" {
+  statement_id  = "AllowPublicAccessFunctionURL"
+  action        = "lambda:InvokeFunctionUrl"
+  function_name = aws_lambda_function.barby_bot.function_name
+  principal     = "*"
+
+  function_url_auth_type = "NONE"
+}
+
 output "lambda_function_name" {
   value = aws_lambda_function.barby_bot.function_name
 }
 
 output "schedule_rule" {
   value = aws_cloudwatch_event_rule.schedule.name
+}
+
+output "lambda_function_url" {
+  value = aws_lambda_function_url.barby_bot_url.function_url
 }
