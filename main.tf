@@ -83,7 +83,6 @@ resource "aws_cloudwatch_event_target" "target" {
   arn       = aws_lambda_function.barby_bot.arn
 }
 
-# Permission for EventBridge to invoke Lambda
 resource "aws_lambda_permission" "allow_eventbridge" {
   statement_id  = "AllowExecutionFromEventBridge"
   action        = "lambda:InvokeFunction"
@@ -92,23 +91,37 @@ resource "aws_lambda_permission" "allow_eventbridge" {
   source_arn    = aws_cloudwatch_event_rule.schedule.arn
 }
 
-resource "aws_lambda_function_url" "barby_bot_url" {
-  function_name      = aws_lambda_function.barby_bot.function_name
-  authorization_type = "NONE"
-
-  cors {
-    allow_origins = ["*"]
-    allow_methods = ["POST"]
-  }
+resource "aws_apigatewayv2_api" "barby_api" {
+  name          = "barby-bot-api"
+  protocol_type = "HTTP"
 }
 
-resource "aws_lambda_permission" "allow_public_url" {
-  statement_id  = "AllowPublicAccessFunctionURL"
-  action        = "lambda:InvokeFunctionUrl"
-  function_name = aws_lambda_function.barby_bot.function_name
-  principal     = "*"
+resource "aws_apigatewayv2_integration" "lambda" {
+  api_id                 = aws_apigatewayv2_api.barby_api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.barby_bot.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
 
-  function_url_auth_type = "NONE"
+resource "aws_apigatewayv2_route" "telegram_webhook" {
+  api_id    = aws_apigatewayv2_api.barby_api.id
+  route_key = "POST /telegram"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.barby_api.id
+  name        = "$default"
+  auto_deploy = true
+}
+
+resource "aws_lambda_permission" "allow_apigateway" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.barby_bot.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.barby_api.execution_arn}/*/*"
 }
 
 output "lambda_function_name" {
@@ -119,6 +132,6 @@ output "schedule_rule" {
   value = aws_cloudwatch_event_rule.schedule.name
 }
 
-output "lambda_function_url" {
-  value = aws_lambda_function_url.barby_bot_url.function_url
+output "telegram_webhook_url" {
+  value = "${aws_apigatewayv2_api.barby_api.api_endpoint}/telegram"
 }
