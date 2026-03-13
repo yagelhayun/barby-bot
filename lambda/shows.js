@@ -37,6 +37,7 @@ export const getArtistShows = async (artists) => {
         artists.some(artist => showName.includes(artist)) && showSold < showSoldMaxBuy);
 
     if (!relevantData.length) {
+        console.warn('No shows found for the specified artists');
         throw new NoShowsError(artists);
     }
 

@@ -22,16 +22,23 @@ export const main = async () => {
     } catch (error) {
         if (error instanceof NoShowsError) {
             try {
+                console.info('Sending health check message');
                 await sendMessage(error.message, process.env.HEALTH_CHAT_ID);
             } catch (err) {
-                console.error(err);
+                throw err;
             }
         } else {
-            console.error(error);
+            throw error;
         }
     }
 }
 
 if (process.env.NODE_ENV === 'development') {
-    main();
+    main().then(() => {
+        console.log('Execution completed successfully');
+        process.exit(0);
+    }).catch((err) => {
+        console.error('Error during execution:', err);
+        process.exit(1);
+    });
 }
