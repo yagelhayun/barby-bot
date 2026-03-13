@@ -1,4 +1,4 @@
-import { TelegramAPIError } from './errors.js';
+import { TelegramAPIError } from '../utils/errors.js';
 
 export const sendMessage = async (message, chatId) => {
     console.log(`Sending message to chat ID ${chatId}`);

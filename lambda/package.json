@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^17.2.3",
-    "postgres": "^3.4.8"
+    "postgres": "^3.4.8",
+    "telegram": "^2.26.22"
   },
   "devDependencies": {
     "supabase": "^2.78.1"
