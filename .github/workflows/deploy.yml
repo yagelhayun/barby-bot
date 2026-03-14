@@ -62,6 +62,7 @@ jobs:
           -var "AWS_REGION=${{ vars.AWS_REGION }}"
           -var "NOTIFICATIONS_BOT_TOKEN=${{ secrets.NOTIFICATIONS_BOT_TOKEN }}"
           -var "ADMIN_BOT_TOKEN=${{ secrets.ADMIN_BOT_TOKEN }}"
+          -var "ADMIN_BOT_SECRET_TOKEN=${{ secrets.ADMIN_BOT_SECRET_TOKEN }}"
           -var "HEALTH_CHAT_ID=${{ vars.HEALTH_CHAT_ID }}"
           -var "DATABASE_USER=${{ vars.DATABASE_USER }}"
           -var "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}"
