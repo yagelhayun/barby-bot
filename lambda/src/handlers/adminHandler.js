@@ -15,7 +15,7 @@ export const adminHandler = async (event, _context) => {
     // console.debug('Received event:', JSON.stringify(event, null, 2));
 
     const { message } = JSON.parse(event.body);
-    const { chat, text, entities } = message;
+    const { chat, text, entities, date, message_id } = message;
 
     if (
         event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_SECRET_TOKEN ||
@@ -63,7 +63,8 @@ export const adminHandler = async (event, _context) => {
         }
 
         try {
-            await sendAdminMessage('חלה שגיאה ביצירת קבוצה', chat.id);
+            await sendAdminMessage(`Error: text: '${text}', date: '${date}', message_id: '${message_id}'`, chat.id);
+            // await sendAdminMessage('חלה שגיאה ביצירת קבוצה', chat.id);
         } catch (err) {
             console.error('Failed to send validation error message:', err);
         }
