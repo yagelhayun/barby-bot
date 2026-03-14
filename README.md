@@ -4,6 +4,10 @@
 This repo deploys a Node.js AWS Lambda that calls the Barby API and notifies a Telegram group via bot when desired artists concerts availability changes. It uses Terraform to create the Lambda and EventBridge schedule, and GitHub Actions to automate packaging and deployment.
 
 
+### What you need to know
+
+<!-- Todo: explain that this lambda must run in the israeli region since the barby site is unreachable in other regions -->
+
 ### What you need
 
 
@@ -15,13 +19,7 @@ This repo deploys a Node.js AWS Lambda that calls the Barby API and notifies a T
 
 ### Required GitHub Secrets
 
-
-Set the following repository secrets in GitHub settings > Secrets & variables > Actions:
-
-- `AWS_REGION`
-- `BOT_TOKEN`
-- `HEALTH_CHAT_ID` (Used to signal that everything works)
-
+<!-- TODO: Update this -->
 
 ### How it works
 
@@ -49,3 +47,7 @@ terraform apply
 
 
 Open this in a browser: https://api.telegram.org/bot<BOT_TOKEN>/getUpdates
+
+### TODO
+
+add tests for both notifications and admin instead of whats happening RN in in index file (lines 19-32)

@@ -1,4 +1,4 @@
-import { BarbyAPIError } from '../utils/errors.js';
+import { BarbyAPIError } from '../utils/errors/index.js';
 
 export const BARBY_URL = 'https://barby.co.il';
 

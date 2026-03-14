@@ -1,4 +1,5 @@
 import sql from '../clients/dbClient.js';
+import { FailedToAddArtistError } from '../utils/errors/index.js';
 
 export const getArtists = async () => {
     const artists = await sql`
@@ -19,7 +20,7 @@ export const addArtist = async (name, chatId) => {
     `;
 
     if (result.count === 0) {
-        throw new Error(`Failed to add artist ${name} to database`);
+        throw new FailedToAddArtistError(name);
     }
 
     return result;

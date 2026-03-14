@@ -1,7 +1,7 @@
 import { getArtists } from '../repositories/artistsRepository.js';
 import { getArtistShows } from '../services/showsService.js';
-import { sendMessage } from '../clients/telegramClient.js';
-import { NoShowsError } from '../utils/errors.js';
+import { sendNotificationMessage } from '../clients/telegramClient.js';
+import { NoShowsError, TelegramAPIError } from '../utils/errors/index.js';
 
 export const notificationsHandler = async (_event, _context) => {
     try {
@@ -11,12 +11,14 @@ export const notificationsHandler = async (_event, _context) => {
             const chatId = artists[artist];
 
             return shows.map(async (show) => {
-                await sendMessage(show, chatId);
+                await sendNotificationMessage(show, chatId);
             });
         });
 
         await Promise.all(messages);
         console.log('Successfully sent all show messages');
+
+        return { statusCode: 200, body: 'Notifications sent successfully' };
     } catch (error) {
         if (error instanceof NoShowsError) {
             try {
@@ -24,13 +26,17 @@ export const notificationsHandler = async (_event, _context) => {
 
                 console.warn(error.message);
                 console.info('Sending health check message');
-                await sendMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, process.env.HEALTH_CHAT_ID);
-            } catch (err) {
-                console.error('Failed to send health check message');
-                throw err;
+                await sendNotificationMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, process.env.HEALTH_CHAT_ID);
+                return { statusCode: 300, body: 'No shows to notify, sent health check message' };
+            } catch (sendError) {
+                console.error('Failed to send health check message', sendError);
+                return { statusCode: 502, body: 'Telegram API error' };
             }
+        } else if (error instanceof TelegramAPIError) {
+            console.error('Failed to send notification message:', error);
+            return { statusCode: 502, body: 'Telegram API error' };
         } else {
-            throw error;
+            return { statusCode: 500, body: 'An unexpected error occurred' };
         }
     }
 }

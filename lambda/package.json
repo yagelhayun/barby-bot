@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "test:noti": "node src/index.js notifications",
+    "test:admin": "node src/index.js admin"
   },
   "keywords": [],
   "author": "",

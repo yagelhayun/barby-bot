@@ -1,4 +1,4 @@
-import { NoShowsError } from '../utils/errors.js';
+import { NoShowsError } from '../utils/errors/index.js';
 import { getShows, BARBY_URL } from '../clients/barbyClient.js';
 
 const generateMessage = ({ showName, showDate, showTime, showPrice, showId }) => `
