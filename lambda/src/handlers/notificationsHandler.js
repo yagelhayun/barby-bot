@@ -1,5 +1,6 @@
-import { getArtists } from '../repositories/artistsRepository.js';
+import { env } from '../utils/config.js';
 import { getArtistShows } from '../services/showsService.js';
+import { getArtists } from '../repositories/artistsRepository.js';
 import { sendNotificationMessage } from '../clients/telegramClient.js';
 import { NoShowsError, TelegramAPIError } from '../utils/errors/index.js';
 
@@ -26,7 +27,7 @@ export const notificationsHandler = async (_event, _context) => {
 
                 console.warn(error.message);
                 console.info('Sending health check message');
-                await sendNotificationMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, process.env.HEALTH_CHAT_ID);
+                await sendNotificationMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, env.HEALTH_CHAT_ID);
                 return { statusCode: 300, body: 'No shows to notify, sent health check message' };
             } catch (sendError) {
                 console.error('Failed to send health check message', sendError);

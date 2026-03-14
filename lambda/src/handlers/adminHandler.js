@@ -5,6 +5,7 @@ import {
     CommandValidationError,
     TelegramAPIError
 } from '../utils/errors/index.js';
+import { env } from '../utils/config.js';
 import { sendAdminMessage } from '../clients/telegramClient.js';
 import { addArtist } from '../repositories/artistsRepository.js';
 import { parseCreateCommand } from '../services/adminCommandsService.js';
@@ -17,8 +18,8 @@ export const adminHandler = async (event, _context) => {
     const { chat, text, entities } = message;
 
     if (
-        event.headers['x-telegram-bot-api-secret-token'] !== process.env.ADMIN_BOT_SECRET_TOKEN ||
-        chat?.id !== parseInt(process.env.ADMIN_BOT_OWNER_ID, 10)
+        event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_SECRET_TOKEN ||
+        chat?.id !== parseInt(env.ADMIN_BOT_OWNER_ID, 10)
     ) {
         console.error('Unauthorized access attempt detected');
         return { statusCode: 401, body: 'Unauthorized' };

@@ -1,10 +1,8 @@
 import 'dotenv/config';
-import { validateEnvironmentVariables } from './utils/config.js';
+import { env } from './utils/config.js';
 import { adminHandler, notificationsHandler } from './handlers/index.js';
 
 export const main = async (event, context) => {
-    validateEnvironmentVariables();
-
     if (event.source === "aws.events") {
         console.log('Notifications handler invoked');
         return await notificationsHandler(event, context);
@@ -18,7 +16,7 @@ export const main = async (event, context) => {
     return { statusCode: 200, body: "Request ignored" };
 }
 
-if (process.env.NODE_ENV === 'development') {
+if (env.NODE_ENV === 'development') {
     const event = process.argv[2] === 'notifications' ? { source: "aws.events" } : {
         version: "2.0",
         routeKey: "POST /telegram",
@@ -37,7 +35,7 @@ if (process.env.NODE_ENV === 'development') {
             "x-forwarded-for": "217.132.73.12",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
-            "x-telegram-bot-api-secret-token": process.env.ADMIN_BOT_SECRET_TOKEN
+            "x-telegram-bot-api-secret-token": env.ADMIN_BOT_SECRET_TOKEN
         },
         requestContext: {
             accountId: "718460151815",

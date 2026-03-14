@@ -1,4 +1,5 @@
 import { Api } from 'telegram';
+import { env } from '../utils/config.js';
 import { getTelegramClient } from '../clients/adminTelegramClient.js';
 import { TelegramGroupCreationError, TelegramAddBotError } from '../utils/errors/index.js';
 
@@ -26,7 +27,7 @@ export const addNotificationsBot = async (chat) => {
         await client.invoke(
             new Api.messages.AddChatUser({
                 chatId: chat.id,
-                userId: process.env.NOTIFICATIONS_BOT_USERNAME,
+                userId: env.NOTIFICATIONS_BOT_USERNAME,
                 fwdLimit: 0,
             }),
         );
