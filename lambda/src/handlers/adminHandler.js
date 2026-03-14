@@ -6,12 +6,12 @@ export const adminHandler = async (event, _context) => {
         event.headers["x-telegram-bot-api-secret-token"] !== process.env.ADMIN_BOT_SECRET_TOKEN ||
         chat?.id !== parseInt(process.env.ADMIN_BOT_OWNER_ID)
     ) {
-        console.warn('Unauthorized access attempt detected');
+        console.error('Unauthorized access attempt detected');
         return { statusCode: 401, body: 'Unauthorized' }
     }
 
     if (!entities || entities[0]?.type !== 'bot_command') {
-        console.warn('Non-command message received');
+        console.error('Non-command message received');
         return { statusCode: 400, body: 'Invalid message type' }
     }
 
