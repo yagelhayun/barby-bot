@@ -11,13 +11,11 @@ variable "AWS_REGION" {
 variable "NOTIFICATIONS_BOT_TOKEN" {
     type = string
     sensitive = true
-    description = "Notifications bot token from BotFather"
 }
 
 variable "ADMIN_BOT_TOKEN" {
     type = string
     sensitive = true
-    description = "Admin bot token from BotFather"
 }
 
 variable "ADMIN_BOT_SECRET_TOKEN" {
@@ -26,9 +24,13 @@ variable "ADMIN_BOT_SECRET_TOKEN" {
     description = "Secret token for Telegram Bot API webhook verification"
 }
 
+variable "ADMIN_BOT_OWNER_ID" {
+    type = string
+    description = "Telegram User ID of Yagel Hayun"
+}
+
 variable "HEALTH_CHAT_ID" {
     type = string
-    description = "Health group chat ID"
 }
 
 variable "DATABASE_USER" {
