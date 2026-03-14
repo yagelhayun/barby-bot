@@ -13,6 +13,14 @@ variable "NOTIFICATIONS_BOT_TOKEN" {
     sensitive = true
 }
 
+variable "NOTIFICATIONS_BOT_USERNAME" {
+    type = string
+}
+
+variable "ADMIN_BOT_USERNAME" {
+    type = string
+}
+
 variable "ADMIN_BOT_TOKEN" {
     type = string
     sensitive = true
