@@ -1,6 +1,6 @@
 export const adminHandler = async (event, _context) => {
     if (
-        event.headers["x-telegram-bot-api-secret-token"] !== process.env.TELEGRAM_BOT_API_SECRET_TOKEN
+        event.headers["x-telegram-bot-api-secret-token"] !== process.env.ADMIN_BOT_SECRET_TOKEN
     ) {
         console.warn('Unauthorized access attempt detected');
         return { statusCode: 401, body: 'Unauthorized' }

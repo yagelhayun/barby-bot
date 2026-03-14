@@ -20,6 +20,12 @@ variable "ADMIN_BOT_TOKEN" {
     description = "Admin bot token from BotFather"
 }
 
+variable "ADMIN_BOT_SECRET_TOKEN" {
+    type = string
+    sensitive = true
+    description = "Secret token for Telegram Bot API webhook verification"
+}
+
 variable "HEALTH_CHAT_ID" {
     type = string
     description = "Health group chat ID"
