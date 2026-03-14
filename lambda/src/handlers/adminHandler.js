@@ -1,4 +1,6 @@
 export const adminHandler = async (event, _context) => {
+    console.debug('Received event:', JSON.stringify(event, null, 2));
+
     const { message } = JSON.parse(event.body);
     const { chat, text, entities } = message;
 
@@ -17,8 +19,8 @@ export const adminHandler = async (event, _context) => {
 
     const artistName = text.split(' ').slice(1).join(' ');
 
-    console.log('Received artist:', artistName);
-    console.log('Received message:', JSON.stringify(message, null, 2));
+    console.debug('Received artist:', artistName);
+    console.debug('Received message:', JSON.stringify(message, null, 2));
 
     return { statusCode: 200, body: 'Successfully added artist' }
 }
