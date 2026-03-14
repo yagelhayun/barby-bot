@@ -1,19 +1,22 @@
 import 'dotenv/config';
 import { env } from './utils/config.js';
+import { buildHandlerResponse } from '../utils/helpers.js';
 import { adminHandler, notificationsHandler } from './handlers/index.js';
 
 export const main = async (event, context) => {
     if (event.source === "aws.events") {
         console.log('Notifications handler invoked');
-        await notificationsHandler(event, context);
+        const notificationsResult = await notificationsHandler(event, context);
+        console.debug('Notifications handler response (ignored by HTTP return):', notificationsResult);
     }
 
     if (event.version === "2.0") {
         console.log('Admin handler invoked');
-        await adminHandler(event, context);
+        const adminResult = await adminHandler(event, context);
+        console.debug('Admin handler response (ignored by HTTP return):', adminResult);
     }
 
-    return { statusCode: 200, body: "Request processed" };
+    return buildHandlerResponse(200, "Request processed");
 }
 
 if (env.NODE_ENV === 'development') {
@@ -22,24 +25,24 @@ if (env.NODE_ENV === 'development') {
         mode === 'notifications'
             ? { source: 'aws.events' }
             : {
-                  version: '2.0',
-                  routeKey: 'POST /telegram',
-                  headers: {
-                      'content-type': 'application/json',
-                      'x-telegram-bot-api-secret-token': env.ADMIN_BOT_SECRET_TOKEN,
-                  },
-                  body: JSON.stringify({
-                      update_id: 1,
-                      message: {
-                          message_id: 1,
-                          from: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), is_bot: false },
-                          chat: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), type: 'private' },
-                          date: Math.floor(Date.now() / 1000),
-                          entities: [{ offset: 0, length: 7, type: 'bot_command' }],
-                          text: '/create Artist Name',
-                      },
-                  }),
-                  isBase64Encoded: false,
+                version: '2.0',
+                routeKey: 'POST /telegram',
+                headers: {
+                    'content-type': 'application/json',
+                    'x-telegram-bot-api-secret-token': env.ADMIN_BOT_SECRET_TOKEN,
+                },
+                body: JSON.stringify({
+                    update_id: 1,
+                    message: {
+                        message_id: 1,
+                        from: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), is_bot: false },
+                        chat: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), type: 'private' },
+                        date: Math.floor(Date.now() / 1000),
+                        entities: [{ offset: 0, length: 7, type: 'bot_command' }],
+                        text: '/create Artist Name',
+                    },
+                }),
+                isBase64Encoded: false,
               };
     const context = {};
 

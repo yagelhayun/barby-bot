@@ -176,17 +176,18 @@ describe('adminHandler', () => {
         });
 
         it('sends success message with correct artist name for Hebrew name', async () => {
-            parseCreateCommand.mockReturnValue('רון חיון');
-            createGroup.mockResolvedValue({ id: 111, title: 'רון חיון' });
+            const artistName = 'רון חיון';
+            parseCreateCommand.mockReturnValue(artistName);
+            createGroup.mockResolvedValue({ id: 111, title: artistName });
             addNotificationsBot.mockResolvedValue(undefined);
             addArtist.mockResolvedValue({});
             sendAdminMessage.mockResolvedValue(undefined);
 
-            const event = buildEvent({ message: { text: '/create רון חיון', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1 } });
+            const event = buildEvent({ message: { text: `/create ${artistName}`, entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1 } });
             const res = await adminHandler(event, {});
 
             expect(sendAdminMessage).toHaveBeenCalledWith(
-                'Successfully created group for "רון חיון".',
+                `Successfully created group for "${artistName}".`,
                 12345
             );
             expect(res.statusCode).toBe(200);

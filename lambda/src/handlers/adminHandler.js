@@ -6,11 +6,17 @@ import {
     TelegramAPIError
 } from '../utils/errors/index.js';
 import { env } from '../utils/config.js';
+import { buildHandlerResponse } from '../utils/helpers.js';
 import { sendAdminMessage } from '../clients/telegramClient.js';
 import { addArtist } from '../repositories/artistsRepository.js';
 import { parseCreateCommand } from '../services/adminCommandsService.js';
 import { addNotificationsBot, createGroup } from '../services/telegramService.js';
 
+/**
+ * Admin handler: performs business work and returns a standard status response.
+ * In AWS Lambda, the top-level `main` always returns the final HTTP response.
+ * This return value is still useful for unit tests and local invocation.
+ */
 export const adminHandler = async (event, _context) => {
     // console.debug('Received event:', JSON.stringify(event, null, 2));
 
@@ -22,8 +28,7 @@ export const adminHandler = async (event, _context) => {
         chat?.id !== parseInt(env.ADMIN_BOT_OWNER_ID, 10)
     ) {
         console.error('Unauthorized access attempt detected');
-        // return { statusCode: 401, body: 'Unauthorized' };
-        return;
+        return buildHandlerResponse(401, 'Unauthorized');
     }
 
     try {
@@ -37,22 +42,29 @@ export const adminHandler = async (event, _context) => {
         console.debug('Artist added to the database');
 
         const successMessage =
-            `Successfully created group for "${artistName}". `;
+            `Successfully created group for "${artistName}".`;
 
         await sendAdminMessage(successMessage, chat.id);
+
+        return buildHandlerResponse(200, 'Successfully added artist');
     } catch (error) {
+        let res;
+
         if (error instanceof CommandValidationError) {
             console.error('Invalid command received:', error);
+            res = { statusCode: 400, body: 'Invalid command' };
         } else if (
             error instanceof TelegramGroupCreationError ||
             error instanceof TelegramAddBotError ||
             error instanceof FailedToAddArtistError
         ) {
             console.error('Error during artist addition process:', error);
+            res = { statusCode: 500, body: 'Failed to add artist' };
         } else if (error instanceof TelegramAPIError) {
             console.error('Telegram API error:', error);
+            res = { statusCode: 502, body: 'Telegram API error' };
         } else {
-            console.error('An unexpected error occurred:', error);
+            res = { statusCode: 500, body: 'An unexpected error occurred' };
         }
 
         try {
@@ -61,5 +73,7 @@ export const adminHandler = async (event, _context) => {
         } catch (err) {
             console.error('Failed to send validation error message:', err);
         }
+
+        return res;
     }
 };
