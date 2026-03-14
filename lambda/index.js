@@ -4,10 +4,12 @@ import { notificationsHandler } from './handlers/notificationsHandler.js';
 
 export const main = async (event, context) => {
     if (event.source === "aws.events") {
+        console.log('Notifications handler invoked');
         return await notificationsHandler(event, context);
     }
 
     if (event.version === "2.0") {
+        console.log('Admin handler invoked');
         return await adminHandler(event, context);
     }
 
