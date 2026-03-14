@@ -69,7 +69,7 @@ export const adminHandler = async (event, _context) => {
             console.error('Failed to send validation error message:', err);
         }
 
-        return res;
+        // return res;
+        return { statusCode: 200, body: 'Internal Server Error' };
     }
 };
-
