@@ -169,7 +169,7 @@ describe('adminHandler', () => {
             expect(addNotificationsBot).toHaveBeenCalledWith(groupChat);
             expect(addArtist).toHaveBeenCalledWith(artistName, 98765);
             expect(sendAdminMessage).toHaveBeenCalledWith(
-                `Successfully created group for "${artistName}". The notifications bot will start sending updates when there are shows for this artist.`,
+                `Successfully created group for "${artistName}".`,
                 12345
             );
             expect(res).toEqual({ statusCode: 200, body: 'Successfully added artist' });
@@ -186,7 +186,7 @@ describe('adminHandler', () => {
             const res = await adminHandler(event, {});
 
             expect(sendAdminMessage).toHaveBeenCalledWith(
-                'Successfully created group for "רון חיון". The notifications bot will start sending updates when there are shows for this artist.',
+                'Successfully created group for "רון חיון".',
                 12345
             );
             expect(res.statusCode).toBe(200);

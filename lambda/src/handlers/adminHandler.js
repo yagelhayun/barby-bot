@@ -22,7 +22,8 @@ export const adminHandler = async (event, _context) => {
         chat?.id !== parseInt(env.ADMIN_BOT_OWNER_ID, 10)
     ) {
         console.error('Unauthorized access attempt detected');
-        return { statusCode: 401, body: 'Unauthorized' };
+        // return { statusCode: 401, body: 'Unauthorized' };
+        return;
     }
 
     try {
@@ -36,30 +37,22 @@ export const adminHandler = async (event, _context) => {
         console.debug('Artist added to the database');
 
         const successMessage =
-            `Successfully created group for "${artistName}". ` +
-            'The notifications bot will start sending updates when there are shows for this artist.';
+            `Successfully created group for "${artistName}". `;
 
         await sendAdminMessage(successMessage, chat.id);
-
-        return { statusCode: 200, body: 'Successfully added artist' };
     } catch (error) {
-        let res;
-
         if (error instanceof CommandValidationError) {
             console.error('Invalid command received:', error);
-            res = { statusCode: 400, body: 'Invalid command' };
         } else if (
             error instanceof TelegramGroupCreationError ||
             error instanceof TelegramAddBotError ||
             error instanceof FailedToAddArtistError
         ) {
             console.error('Error during artist addition process:', error);
-            res = { statusCode: 500, body: 'Failed to add artist' };
         } else if (error instanceof TelegramAPIError) {
             console.error('Telegram API error:', error);
-            res = { statusCode: 502, body: 'Telegram API error' };
         } else {
-            res = { statusCode: 500, body: 'An unexpected error occurred' };
+            console.error('An unexpected error occurred:', error);
         }
 
         try {
@@ -68,8 +61,5 @@ export const adminHandler = async (event, _context) => {
         } catch (err) {
             console.error('Failed to send validation error message:', err);
         }
-
-        // return res;
-        return { statusCode: 200, body: 'Internal Server Error' };
     }
 };
