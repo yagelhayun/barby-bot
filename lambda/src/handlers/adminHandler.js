@@ -7,10 +7,9 @@ export const adminHandler = async (event, _context) => {
     }
 
     const { message } = JSON.parse(event.body);
-    // const { chat, text, entities } = message;
-    const { entities } = message;
+    const { chat, text, entities } = message;
 
-    if (!entities?.[0].type === 'bot_command') {
+    if (entities?.[0].type !== 'bot_command') {
         console.warn('Non-command message received');
         return { statusCode: 400, body: 'Invalid message type' }
     }
