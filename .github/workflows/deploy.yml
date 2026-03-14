@@ -11,6 +11,16 @@ permissions:
 
 env:
   TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+  TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_VAR_NOTIFICATIONS_BOT_TOKEN: ${{ secrets.NOTIFICATIONS_BOT_TOKEN }}
+  TF_VAR_ADMIN_BOT_TOKEN: ${{ secrets.ADMIN_BOT_TOKEN }}
+  TF_VAR_ADMIN_BOT_SECRET_TOKEN: ${{ secrets.ADMIN_BOT_SECRET_TOKEN }}
+  TF_VAR_HEALTH_CHAT_ID: ${{ vars.HEALTH_CHAT_ID }}
+  TF_VAR_DATABASE_USER: ${{ vars.DATABASE_USER }}
+  TF_VAR_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+  TF_VAR_DATABASE_HOST: ${{ vars.DATABASE_HOST }}
+  TF_VAR_DATABASE_PORT: ${{ vars.DATABASE_PORT }}
+  TF_VAR_DATABASE_NAME: ${{ vars.DATABASE_NAME }}
 
 jobs:
   deploy:
@@ -44,28 +54,8 @@ jobs:
 
       - name: Terraform Plan
         run: >-
-          terraform plan
-          -var "AWS_REGION=${{ vars.AWS_REGION }}"
-          -var "NOTIFICATIONS_BOT_TOKEN=${{ secrets.NOTIFICATIONS_BOT_TOKEN }}"
-          -var "ADMIN_BOT_TOKEN=${{ secrets.ADMIN_BOT_TOKEN }}"
-          -var "ADMIN_BOT_SECRET_TOKEN=${{ secrets.ADMIN_BOT_SECRET_TOKEN }}"
-          -var "HEALTH_CHAT_ID=${{ vars.HEALTH_CHAT_ID }}"
-          -var "DATABASE_USER=${{ vars.DATABASE_USER }}"
-          -var "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}"
-          -var "DATABASE_HOST=${{ vars.DATABASE_HOST }}"
-          -var "DATABASE_PORT=${{ vars.DATABASE_PORT }}"
-          -var "DATABASE_NAME=${{ vars.DATABASE_NAME }}"
+          terraform plan -out=tfplan
 
       - name: Terraform Apply
         run: >-
-          terraform apply -auto-approve
-          -var "AWS_REGION=${{ vars.AWS_REGION }}"
-          -var "NOTIFICATIONS_BOT_TOKEN=${{ secrets.NOTIFICATIONS_BOT_TOKEN }}"
-          -var "ADMIN_BOT_TOKEN=${{ secrets.ADMIN_BOT_TOKEN }}"
-          -var "ADMIN_BOT_SECRET_TOKEN=${{ secrets.ADMIN_BOT_SECRET_TOKEN }}"
-          -var "HEALTH_CHAT_ID=${{ vars.HEALTH_CHAT_ID }}"
-          -var "DATABASE_USER=${{ vars.DATABASE_USER }}"
-          -var "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}"
-          -var "DATABASE_HOST=${{ vars.DATABASE_HOST }}"
-          -var "DATABASE_PORT=${{ vars.DATABASE_PORT }}"
-          -var "DATABASE_NAME=${{ vars.DATABASE_NAME }}"
+          terraform apply -auto-approve tfplan
