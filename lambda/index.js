@@ -4,14 +4,14 @@ import { notificationsHandler } from './handlers/notificationsHandler.js';
 
 export const main = async (event, context) => {
     if (event.source === "aws.events") {
-        return notificationsHandler(event, context);
+        return await notificationsHandler(event, context);
     }
 
     if (event.version === "2.0") {
-        return adminHandler(event, context);
+        return await adminHandler(event, context);
     }
 
-    return { statusCode: 200, body: "ignored" }
+    return { statusCode: 200, body: "Request ignored" };
 }
 
 if (process.env.NODE_ENV === 'development') {
