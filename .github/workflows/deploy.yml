@@ -31,7 +31,7 @@ jobs:
       - name: Configure AWS credentials (OIDC role assumption)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/Authenticator
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Authenticator
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
@@ -48,6 +48,7 @@ jobs:
           -var "AWS_REGION=${{ vars.AWS_REGION }}"
           -var "NOTIFICATIONS_BOT_TOKEN=${{ secrets.NOTIFICATIONS_BOT_TOKEN }}"
           -var "ADMIN_BOT_TOKEN=${{ secrets.ADMIN_BOT_TOKEN }}"
+          -var "ADMIN_BOT_SECRET_TOKEN=${{ secrets.ADMIN_BOT_SECRET_TOKEN }}"
           -var "HEALTH_CHAT_ID=${{ vars.HEALTH_CHAT_ID }}"
           -var "DATABASE_USER=${{ vars.DATABASE_USER }}"
           -var "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}"
