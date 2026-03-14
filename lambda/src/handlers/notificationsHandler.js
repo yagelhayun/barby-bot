@@ -4,9 +4,8 @@ import { sendMessage } from '../clients/telegramClient.js';
 import { NoShowsError } from '../utils/errors.js';
 
 export const notificationsHandler = async (_event, _context) => {
-    const artists = await getArtists();
-
     try {
+        const artists = await getArtists();
         const artistShows = await getArtistShows(Object.keys(artists));
         const messages = artistShows.flatMap(({ artist, shows }) => {
             const chatId = artists[artist];
@@ -21,9 +20,13 @@ export const notificationsHandler = async (_event, _context) => {
     } catch (error) {
         if (error instanceof NoShowsError) {
             try {
+                const { artists } = error;
+
+                console.warn(error.message);
                 console.info('Sending health check message');
-                await sendMessage(error.message, process.env.HEALTH_CHAT_ID);
+                await sendMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, process.env.HEALTH_CHAT_ID);
             } catch (err) {
+                console.error('Failed to send health check message');
                 throw err;
             }
         } else {

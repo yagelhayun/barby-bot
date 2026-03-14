@@ -1,6 +1,7 @@
 export class NoShowsError extends Error {
     constructor(artists) {
-        super(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`);
+        this.artists = artists;
+        super('No shows found for the specified artists');
     }
 }
 

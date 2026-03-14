@@ -12,10 +12,9 @@ const generateMessage = ({ showName, showDate, showTime, showPrice, showId }) =>
 export const getArtistShows = async (artists) => {
     const allShows = await getShows();
     const relevantData = allShows.filter(({ showName, showSold, showSoldMaxBuy }) =>
-        artists.some(artist => showName.includes(artist)) && showSold < showSoldMaxBuy);
+        artists.some(artist => showSold < showSoldMaxBuy && showName.includes(artist)));
 
     if (!relevantData.length) {
-        console.warn('No shows found for the specified artists');
         throw new NoShowsError(artists);
     }
 
