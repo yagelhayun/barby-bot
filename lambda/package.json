@@ -5,8 +5,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test:noti": "node src/index.js notifications",
-    "test:admin": "node src/index.js admin"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev:noti": "node src/index.js notifications",
+    "dev:admin": "node src/index.js admin"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +20,7 @@
     "telegram": "^2.26.22"
   },
   "devDependencies": {
-    "supabase": "^2.78.1"
+    "supabase": "^2.78.1",
+    "vitest": "^2.1.0"
   }
 }
