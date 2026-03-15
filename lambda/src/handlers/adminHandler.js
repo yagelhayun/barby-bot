@@ -5,7 +5,7 @@ import {
     CommandValidationError,
     TelegramAPIError
 } from '../utils/errors/index.js';
-import { env } from '../utils/config.js';
+import { env, logger } from '../utils/config.js';
 import { buildHandlerResponse } from '../utils/helpers.js';
 import { sendAdminMessage } from '../clients/telegramClient.js';
 import { addArtist } from '../repositories/artistsRepository.js';
@@ -18,7 +18,7 @@ import { addNotificationsBot, createGroup } from '../services/telegramService.js
  * This return value is still useful for unit tests and local invocation.
  */
 export const adminHandler = async (event, _context) => {
-    // console.debug('Received event:', JSON.stringify(event, null, 2));
+    logger.debug('adminHandler event:', event);
 
     const { message } = JSON.parse(event.body);
     const { chat, text, entities, date, message_id } = message;
@@ -27,19 +27,19 @@ export const adminHandler = async (event, _context) => {
         event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_SECRET_TOKEN ||
         chat?.id !== parseInt(env.ADMIN_BOT_OWNER_ID, 10)
     ) {
-        console.error('Unauthorized access attempt detected');
+        logger.error('Unauthorized access attempt detected');
         return buildHandlerResponse(401, 'Unauthorized');
     }
 
     try {
         const artistName = parseCreateCommand(text, entities);
-        console.debug(`Parsed artist name: "${artistName}"`);
+        logger.debug(`Parsed artist name: "${artistName}"`);
         const groupChat = await createGroup(artistName);
-        console.debug(`Created Telegram group with ID: ${groupChat.id}`);
+        logger.debug(`Created Telegram group with ID: ${groupChat.id}`);
         await addNotificationsBot(groupChat);
-        console.debug('Added notifications bot to the group');
+        logger.debug('Added notifications bot to the group');
         await addArtist(artistName, groupChat.id);
-        console.debug('Artist added to the database');
+        logger.debug('Artist added to the database');
 
         const successMessage =
             `Successfully created group for "${artistName}".`;
@@ -51,17 +51,17 @@ export const adminHandler = async (event, _context) => {
         let res;
 
         if (error instanceof CommandValidationError) {
-            console.error('Invalid command received:', error);
+            logger.error('Invalid command received:', error);
             res = { statusCode: 400, body: 'Invalid command' };
         } else if (
             error instanceof TelegramGroupCreationError ||
             error instanceof TelegramAddBotError ||
             error instanceof FailedToAddArtistError
         ) {
-            console.error('Error during artist addition process:', error);
+            logger.error('Error during artist addition process:', error);
             res = { statusCode: 500, body: 'Failed to add artist' };
         } else if (error instanceof TelegramAPIError) {
-            console.error('Telegram API error:', error);
+            logger.error('Telegram API error:', error);
             res = { statusCode: 502, body: 'Telegram API error' };
         } else {
             res = { statusCode: 500, body: 'An unexpected error occurred' };
@@ -71,7 +71,7 @@ export const adminHandler = async (event, _context) => {
             await sendAdminMessage(`Error: text: '${text}', date: '${date}', message_id: '${message_id}'`, chat.id);
             // await sendAdminMessage('חלה שגיאה ביצירת קבוצה', chat.id);
         } catch (err) {
-            console.error('Failed to send validation error message:', err);
+            logger.error('Failed to send validation error message:', err);
         }
 
         return res;

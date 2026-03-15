@@ -6,6 +6,7 @@ vi.mock('../../services/showsService.js', () => ({ getArtistShows: vi.fn() }));
 vi.mock('../../clients/telegramClient.js', () => ({ sendNotificationMessage: vi.fn() }));
 vi.mock('../../utils/config.js', () => ({
     env: { HEALTH_CHAT_ID: '999888' },
+    logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
 const { notificationsHandler } = await import('../notificationsHandler.js');

@@ -59,13 +59,14 @@ resource "aws_lambda_function" "barby_bot" {
 
   environment {
     variables = {
+      NODE_ENV                    = var.NODE_ENV
+      LOG_LEVEL                   = var.LOG_LEVEL
       NOTIFICATIONS_BOT_TOKEN     = var.NOTIFICATIONS_BOT_TOKEN
       NOTIFICATIONS_BOT_USERNAME  = var.NOTIFICATIONS_BOT_USERNAME
       ADMIN_BOT_USERNAME          = var.ADMIN_BOT_USERNAME
       ADMIN_BOT_TOKEN             = var.ADMIN_BOT_TOKEN
       ADMIN_BOT_SECRET_TOKEN      = var.ADMIN_BOT_SECRET_TOKEN
       ADMIN_BOT_OWNER_ID          = var.ADMIN_BOT_OWNER_ID
-      NODE_ENV                    = var.NODE_ENV
       DATABASE_USER               = var.DATABASE_USER
       DATABASE_PASSWORD           = var.DATABASE_PASSWORD
       DATABASE_HOST               = var.DATABASE_HOST

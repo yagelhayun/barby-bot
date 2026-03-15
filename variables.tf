@@ -1,11 +1,16 @@
+variable "AWS_REGION" {
+    type = string
+    default = "il-central-1"
+}
+
 variable "NODE_ENV" {
     type = string
     default = "production"
 }
 
-variable "AWS_REGION" {
+variable "LOG_LEVEL" {
     type = string
-    default = "il-central-1"
+    default = "debug"
 }
 
 variable "NOTIFICATIONS_BOT_TOKEN" {

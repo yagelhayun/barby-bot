@@ -1,9 +1,9 @@
-// TODO: initialize a logger
-
 import { cleanEnv, str, num } from "envalid";
+import { createLogger } from "@yagelhayun/logger/server";
 
 export const env = cleanEnv(process.env, {
     NODE_ENV: str({ choices: ["development", "test", "production"] }),
+    LOG_LEVEL: str({ choices: ["error", "warn", "info", "debug", "verbose"] }),
 
     DATABASE_HOST: str(),
     DATABASE_PORT: num(),
@@ -23,4 +23,9 @@ export const env = cleanEnv(process.env, {
     NOTIFICATIONS_BOT_TOKEN: str(),
     NOTIFICATIONS_BOT_USERNAME: str(),
     HEALTH_CHAT_ID: str(),
+});
+
+export const logger = createLogger({
+    minLogLevel: env.LOG_LEVEL,
+    isLocal: env.NODE_ENV === "development"
 });

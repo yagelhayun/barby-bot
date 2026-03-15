@@ -1,9 +1,10 @@
+import { logger } from '../utils/config.js';
 import { BarbyAPIError } from '../utils/errors/index.js';
 
 export const BARBY_URL = 'https://barby.co.il';
 
 export const getShows = async () => {
-    console.log(`Fetching shows from ${BARBY_URL}`);
+    logger.info(`Fetching shows from ${BARBY_URL}`);
 
     const res = await fetch(`${BARBY_URL}/api/shows/find`, {
         method: 'GET',
@@ -18,7 +19,7 @@ export const getShows = async () => {
     }
 
     const data = await res.json();
-    console.log("Received shows data");
+    logger.info("Received shows data");
 
     return data?.returnShow?.show;
 }

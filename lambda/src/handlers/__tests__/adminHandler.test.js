@@ -21,6 +21,7 @@ vi.mock('../../utils/config.js', () => ({
         ADMIN_BOT_SECRET_TOKEN: 'test-secret',
         ADMIN_BOT_OWNER_ID: '12345',
     },
+    logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
 const { adminHandler } = await import('../adminHandler.js');

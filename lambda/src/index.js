@@ -1,19 +1,19 @@
 import 'dotenv/config';
-import { env } from './utils/config.js';
-import { buildHandlerResponse } from '../utils/helpers.js';
+import { env, logger } from './utils/config.js';
+import { buildHandlerResponse } from './utils/helpers.js';
 import { adminHandler, notificationsHandler } from './handlers/index.js';
 
 export const main = async (event, context) => {
     if (event.source === "aws.events") {
-        console.log('Notifications handler invoked');
+        logger.info('Notifications handler invoked');
         const notificationsResult = await notificationsHandler(event, context);
-        console.debug('Notifications handler response (ignored by HTTP return):', notificationsResult);
+        logger.debug('Notifications handler response (ignored by HTTP return)', notificationsResult);
     }
 
     if (event.version === "2.0") {
-        console.log('Admin handler invoked');
+        logger.info('Admin handler invoked');
         const adminResult = await adminHandler(event, context);
-        console.debug('Admin handler response (ignored by HTTP return):', adminResult);
+        logger.debug('Admin handler response (ignored by HTTP return)', adminResult);
     }
 
     return buildHandlerResponse(200, "Request processed");
@@ -48,11 +48,11 @@ if (env.NODE_ENV === 'development') {
 
     main(event, context)
         .then(() => {
-            console.log('Execution completed successfully');
+            logger.info('Execution completed successfully');
             process.exit(0);
         })
         .catch((err) => {
-            console.error('Error during execution:', err);
+            logger.error('Error during execution:', err);
             process.exit(1);
         });
 }

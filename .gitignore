@@ -1,4 +1,6 @@
+# dependencies
 node_modules/
+*.tgz
 
 # AWS Lambda
 *.zip

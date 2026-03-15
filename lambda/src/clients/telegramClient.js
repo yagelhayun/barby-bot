@@ -1,8 +1,8 @@
-import { env } from '../utils/config.js';
+import { env, logger } from '../utils/config.js';
 import { TelegramAPIError } from '../utils/errors/index.js';
 
 const sendMessage = async (token, message, chatId) => {
-    console.log(`Sending message to chat ID ${chatId}`);
+    logger.info(`Sending message to chat ID ${chatId}`);
 
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
@@ -17,7 +17,7 @@ const sendMessage = async (token, message, chatId) => {
         throw new TelegramAPIError(res);
     }
 
-    console.log('Message sent successfully');
+    logger.info('Message sent successfully');
 };
 
 export const sendNotificationMessage = async (message, chatId) => {

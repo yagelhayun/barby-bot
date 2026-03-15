@@ -1,4 +1,4 @@
-import { env } from '../utils/config.js';
+import { env, logger } from '../utils/config.js';
 import { buildHandlerResponse } from '../utils/helpers.js';
 import { getArtistShows } from '../services/showsService.js';
 import { getArtists } from '../repositories/artistsRepository.js';
@@ -22,7 +22,7 @@ export const notificationsHandler = async (_event, _context) => {
         });
 
         await Promise.all(messages);
-        console.log('Successfully sent all show messages');
+        logger.info('Successfully sent all show messages');
 
         return buildHandlerResponse(200, 'Notifications sent successfully');
     } catch (error) {
@@ -30,16 +30,16 @@ export const notificationsHandler = async (_event, _context) => {
             try {
                 const { artists } = error;
 
-                console.warn(error.message);
-                console.info('Sending health check message');
+                logger.warn(error.message);
+                logger.info('Sending health check message');
                 await sendNotificationMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, env.HEALTH_CHAT_ID);
                 return buildHandlerResponse(300, 'No shows to notify, sent health check message');
             } catch (sendError) {
-                console.error('Failed to send health check message', sendError);
+                logger.error('Failed to send health check message', sendError);
                 return buildHandlerResponse(502, 'Telegram API error');
             }
         } else if (error instanceof TelegramAPIError) {
-            console.error('Failed to send notification message:', error);
+            logger.error('Failed to send notification message:', error);
             return buildHandlerResponse(502, 'Telegram API error');
         } else {
             return buildHandlerResponse(500, 'An unexpected error occurred');
