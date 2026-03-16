@@ -8,9 +8,7 @@ export const main = async (event, context) => {
         logger.info('Notifications handler invoked');
         const notificationsResult = await notificationsHandler(event, context);
         logger.debug('Notifications handler response (ignored by HTTP return)', notificationsResult);
-    }
-
-    if (event.version === "2.0") {
+    } else if (event.version === "2.0") {
         logger.info('Admin handler invoked');
         const adminResult = await adminHandler(event, context);
         logger.debug('Admin handler response (ignored by HTTP return)', adminResult);
