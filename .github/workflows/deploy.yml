@@ -42,7 +42,7 @@ jobs:
 
       - name: Install Lambda dependencies
         working-directory: lambda
-        run: npm ci --omit=dev
+        run: npm ci --omit=dev --legacy-peer-deps
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
