@@ -7,6 +7,7 @@ import {
     handleDeleteArtist
 } from '../services/adminService.js';
 import { CommandValidationError } from '../utils/errors/index.js';
+import { sendAdminMessage } from '../services/telegramService.js';
 
 /**
  * Admin handler: performs business work and returns a standard status response.
@@ -57,7 +58,7 @@ export const adminHandler = async (event, _context) => {
         logger.error(error);
 
         try {
-            await sendAdminMessage(`חלה שגיאה ביצירת קבוצה עבור "${artistName}". סיבה: ${reason}`, chat.id);
+            await sendAdminMessage(`חלה שגיאה ביצירת קבוצה. סיבה: ${reason}`, chat.id);
         } catch (err) {
             logger.error('Failed to send error message:', err);
         }

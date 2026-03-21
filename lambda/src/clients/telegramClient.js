@@ -14,7 +14,7 @@ const sendMessage = (token) => async (message, chatId) => {
         }),
     };
 
-    logger.debug(`Fetching URL '${requestUrl}' with options`, requestOptions);
+    logger.debug(`Fetching URL '${requestUrl}' with options`, requestOptions); // TODO: find a way to censor the token in logs without losing the ability to debug other options
     const res = await fetch(requestUrl, requestOptions);
 
     if (!res.ok) {

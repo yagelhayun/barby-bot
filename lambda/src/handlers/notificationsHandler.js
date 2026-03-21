@@ -3,7 +3,7 @@ import { buildHandlerResponse } from '../utils/helpers.js';
 import { getArtistShows } from '../services/showsService.js';
 import { getArtists } from '../services/artistsService.js';
 import { sendNotificationMessage } from '../clients/telegramClient.js';
-import { NoShowsError, UnableToSendBotMessageError } from '../utils/errors/index.js';
+import { NoShowsError } from '../utils/errors/index.js';
 
 /**
  * Notifications handler: sends telegram messages and returns a status object
@@ -15,16 +15,22 @@ export const notificationsHandler = async (_event, _context) => {
         const artistShows = await getArtistShows(Object.keys(artists));
         const messages = artistShows.flatMap(({ artist, shows }) => {
             const chatId = artists[artist];
-
-            return shows.map(async (show) => {
-                await sendNotificationMessage(show, chatId);
-            });
+            return shows.map((show) => sendNotificationMessage(show, chatId));
         });
 
-        await Promise.all(messages);
-        logger.info('Successfully sent all show messages');
+        const results = await Promise.allSettled(messages);
+        const failed = results.filter(({ status }) => status === 'rejected');
+        const succeeded = results.length - failed.length;
 
-        return buildHandlerResponse(200, 'Notifications sent successfully');
+        if (failed.length > 0) {
+            failed.forEach(({ reason }) => logger.error('Failed to send notification message:', reason));
+        }
+
+        logger.info(`Sent ${succeeded}/${results.length} notification messages`);
+
+        return failed.length === results.length
+            ? buildHandlerResponse(502, 'All notifications failed to send')
+            : buildHandlerResponse(200, 'Notifications sent successfully');
     } catch (error) {
         if (error instanceof NoShowsError) {
             try {
@@ -38,10 +44,8 @@ export const notificationsHandler = async (_event, _context) => {
                 logger.error('Failed to send health check message', sendError);
                 return buildHandlerResponse(502, 'Telegram API error');
             }
-        } else if (error instanceof UnableToSendBotMessageError) {
-            logger.error('Failed to send notification message:', error);
-            return buildHandlerResponse(502, 'Telegram API error');
         } else {
+            logger.error('Unexpected error in notifications handler:', error);
             return buildHandlerResponse(500, 'An unexpected error occurred');
         }
     }

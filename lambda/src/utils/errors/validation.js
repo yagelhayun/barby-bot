@@ -1,6 +1,6 @@
 export class GroupNotFoundError extends Error {
-    constructor(groupName) {
-        super(`Group "${groupName}" not found.`);
+    constructor(message) {
+        super(message);
     }
 }
 

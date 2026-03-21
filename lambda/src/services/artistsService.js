@@ -50,7 +50,10 @@ export const deleteArtist = async (name) => {
 
 export const updateArtistChatId = async (name, chatId) => {
     const result = await updateArtistChatIdInDB(name, chatId);
-    logger.info(result);
+    
+    if (result.count === 0) {
+        throw new GroupNotFoundInDatabaseError(name); // TODO: not sure if this is the right error to throw here, since the artist does exist but the update failed. Maybe a new error type is needed?
+    }
 }
 
 export const alignTelegramAndDBStates = async (artistName) => {
