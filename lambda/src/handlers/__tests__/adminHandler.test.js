@@ -11,10 +11,8 @@ vi.mock('../../services/adminService.js', () => ({
     handleCreateArtist: vi.fn(),
     handleDeleteArtist: vi.fn(),
 }));
-vi.mock('../../services/telegramService.js', () => ({
+vi.mock('../../clients/telegramClient.js', () => ({
     sendAdminMessage: vi.fn(),
-    createGroup: vi.fn(),
-    getGroupChatIdByArtistName: vi.fn(),
 }));
 vi.mock('../../utils/config.js', () => ({
     env: {
@@ -26,7 +24,7 @@ vi.mock('../../utils/config.js', () => ({
 
 const { adminHandler } = await import('../adminHandler.js');
 const { parseCommand, handleCreateArtist, handleDeleteArtist } = await import('../../services/adminService.js');
-const { sendAdminMessage } = await import('../../services/telegramService.js');
+const { sendAdminMessage } = await import('../../clients/telegramClient.js');
 
 function buildEvent(overrides = {}) {
     const ownerId = 12345;
