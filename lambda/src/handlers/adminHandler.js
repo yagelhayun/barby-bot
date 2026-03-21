@@ -6,8 +6,8 @@ import {
     handleCreateArtist,
     handleDeleteArtist
 } from '../services/adminService.js';
+import { sendAdminMessage } from '../clients/telegramClient.js';
 import { CommandValidationError } from '../utils/errors/index.js';
-import { sendAdminMessage } from '../services/telegramService.js';
 
 /**
  * Admin handler: performs business work and returns a standard status response.

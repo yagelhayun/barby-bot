@@ -43,11 +43,19 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@yagelhayun'
 
-      - name: Install Lambda dependencies
+      - name: Install Lambda dependencies (with devDependencies for tests)
         working-directory: lambda
-        run: npm ci --omit=dev --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run tests
+        working-directory: lambda
+        run: npm test
+
+      - name: Prune devDependencies before deploy
+        working-directory: lambda
+        run: npm prune --omit=dev
 
       - name: Configure AWS credentials (OIDC role assumption)
         uses: aws-actions/configure-aws-credentials@v4
