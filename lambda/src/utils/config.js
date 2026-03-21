@@ -16,9 +16,9 @@ export const env = cleanEnv(process.env, {
     ADMIN_BOT_OWNER_ID: str(),
     ADMIN_BOT_TOKEN: str(),
 
-    // ADMIN_TG_API_ID: str(),
-    // ADMIN_TG_API_HASH: str(),
-    // ADMIN_TG_STRING_SESSION: str(),
+    ADMIN_TG_API_ID: num(),
+    ADMIN_TG_API_HASH: str(),
+    ADMIN_TG_STRING_SESSION: str(),
 
     NOTIFICATIONS_BOT_TOKEN: str(),
     NOTIFICATIONS_BOT_USERNAME: str(),

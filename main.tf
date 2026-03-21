@@ -67,6 +67,9 @@ resource "aws_lambda_function" "barby_bot" {
       ADMIN_BOT_TOKEN             = var.ADMIN_BOT_TOKEN
       ADMIN_BOT_SECRET_TOKEN      = var.ADMIN_BOT_SECRET_TOKEN
       ADMIN_BOT_OWNER_ID          = var.ADMIN_BOT_OWNER_ID
+      ADMIN_TG_API_ID             = var.ADMIN_TG_API_ID
+      ADMIN_TG_API_HASH           = var.ADMIN_TG_API_HASH
+      ADMIN_TG_STRING_SESSION     = var.ADMIN_TG_STRING_SESSION
       DATABASE_USER               = var.DATABASE_USER
       DATABASE_PASSWORD           = var.DATABASE_PASSWORD
       DATABASE_HOST               = var.DATABASE_HOST
