@@ -15,7 +15,7 @@ export const getTelegramClient = async () => {
 
     telegramClient = new TelegramClient(new StringSession(session), apiId, apiHash, {
         connectionRetries: 5,
-        baseLogger: logger
+        baseLogger: logger.child({ module: 'AdminTelegramClient' }),
     });
 
     if (!telegramClient.connected) {

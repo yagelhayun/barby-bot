@@ -46,7 +46,7 @@ if (env.NODE_ENV === 'development') {
 
     main(event, context)
         .then(() => {
-            logger.info('Execution completed successfully');
+            logger.debug('Execution completed successfully');
             process.exit(0);
         })
         .catch((err) => {

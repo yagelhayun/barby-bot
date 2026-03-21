@@ -16,7 +16,7 @@ export const createGroup = async (artistName) => {
             }),
         );
 
-        logger.debug('Created group on Telegram successfully');
+        logger.info('Created group on Telegram successfully');
     } catch (err) {
         throw new TelegramGroupCreationError(artistName, err);
     }
@@ -31,7 +31,7 @@ export const getGroupChatIdByArtistName = async (artistName) => {
     const group = dialogs.find(({ title }) => title === groupName);
 
     if (!group) {
-        logger.error(`Group with name ${groupName} not found`);
+        logger.error(`Group with name "${groupName}" not found`);
         throw new GroupNotFoundError(groupName);
     }
     

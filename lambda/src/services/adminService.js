@@ -43,11 +43,11 @@ export const handleCreateArtist = async (artistName, adminChatId) => {
 
         if (actionNeeded) {
             await createGroup(artistName);
-            logger.debug('Created Telegram group with the notifications bot');
+            logger.info('Created Telegram group with the notifications bot');
             const groupChatId = await getGroupChatIdByArtistName(artistName);
 
             await addArtist(artistName, groupChatId);
-            logger.debug('Artist added to the database');
+            logger.info('Artist added to the database');
 
             await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, adminChatId);   
         }
