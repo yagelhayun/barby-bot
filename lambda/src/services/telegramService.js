@@ -1,37 +1,43 @@
 import { Api } from 'telegram';
-import { env } from '../utils/config.js';
+import { env, logger } from '../utils/config.js';
 import { getTelegramClient } from '../clients/adminTelegramClient.js';
-import { TelegramGroupCreationError, TelegramAddBotError } from '../utils/errors/index.js';
+import { 
+    TelegramGroupCreationError,
+    GroupNotFoundInTelegramError
+} from '../utils/errors/index.js';
+
+const getGroupName = (artistName) => `${artistName} בארבי`;
 
 export const createGroup = async (artistName) => {
     const client = await getTelegramClient();
 
     try {
-        const result = await client.invoke(
+        await client.invoke(
             new Api.messages.CreateChat({
-                users: [],
-                title: artistName,
+                users: [env.NOTIFICATIONS_BOT_USERNAME],
+                title: getGroupName(artistName),
             }),
         );
 
-        return result.chats[0];
+        logger.info('Created group on Telegram successfully');
     } catch (err) {
         throw new TelegramGroupCreationError(artistName, err);
     }
 }
 
-export const addNotificationsBot = async (chat) => {
-    const client = await getTelegramClient();
+export const getGroupChatIdByArtistName = async (artistName) => {
+    const client = await getTelegramClient(); 
+    
+    const groupName = getGroupName(artistName);
+    
+    const dialogs = await client.getDialogs();
+    const group = dialogs.find(({ title }) => title === groupName);
 
-    try {
-        await client.invoke(
-            new Api.messages.AddChatUser({
-                chatId: chat.id,
-                userId: env.NOTIFICATIONS_BOT_USERNAME,
-                fwdLimit: 0,
-            }),
-        );
-    } catch (err) {
-        throw new TelegramAddBotError(chat.title, err);
+    if (!group) {
+        logger.error(`Group with name "${groupName}" not found`);
+        throw new GroupNotFoundInTelegramError(groupName);
     }
-};
+    
+    logger.debug("Found group ID", group.id);
+    return group.id.value.toString();
+}

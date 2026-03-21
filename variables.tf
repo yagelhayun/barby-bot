@@ -42,6 +42,21 @@ variable "ADMIN_BOT_OWNER_ID" {
     description = "Telegram User ID of Yagel Hayun"
 }
 
+variable "ADMIN_TG_API_ID" {
+  type = number
+  sensitive = true
+}
+
+variable "ADMIN_TG_API_HASH" {
+  type = string
+  sensitive = true
+}
+
+variable "ADMIN_TG_STRING_SESSION" {
+  type = string
+  sensitive = true
+}
+
 variable "HEALTH_CHAT_ID" {
     type = string
 }

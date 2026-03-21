@@ -1,13 +1,14 @@
+import { FetchError } from './http.js';
+
 export class TelegramGroupCreationError extends Error {
-    constructor(artistName, cause) {
+    constructor(artistName, error) {
         super(`Failed to create Telegram group for artist "${artistName}"`);
-        this.cause = cause;
+        this.cause = error;
     }
 }
 
-export class TelegramAddBotError extends Error {
-    constructor(artistName, cause) {
-        super(`Failed to add notifications bot to group for artist "${artistName}"`);
-        this.cause = cause;
+export class UnableToSendBotMessageError extends FetchError {
+    constructor(res) {
+        super('Unable to send Telegram message', res);
     }
 }

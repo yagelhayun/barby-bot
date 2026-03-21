@@ -1,15 +1,18 @@
 import postgres from "postgres";
 import { env } from '../utils/config.js';
 
-const {
-    DATABASE_HOST,
-    DATABASE_PORT,
-    DATABASE_NAME,
-    DATABASE_USER,
-    DATABASE_PASSWORD,
-} = env;
+const sql = postgres({
+    host: env.DATABASE_HOST,
+    port: env.DATABASE_PORT,
+    database: env.DATABASE_NAME,
+    username: env.DATABASE_USER,
+    password: env.DATABASE_PASSWORD,
+    ssl: 'require',
+    max: 1,           // Lambda runs one request at a time — no pool needed
+    idle_timeout: 20, // close idle connections after 20s
+    connect_timeout: 10,
+});
 
-const connectionString = `postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`;
-const sql = postgres(connectionString);
+export const closeDb = () => sql.end();
 
 export default sql;

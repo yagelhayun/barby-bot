@@ -1,16 +1,22 @@
 import sql from '../clients/dbClient.js';
-import { FailedToAddArtistError } from '../utils/errors/index.js';
 
 export const getArtists = async () => {
-    const artists = await sql`
+    const result = await sql`
         SELECT name, chat_id
         FROM artists
     `;
 
-    return artists.reduce((acc, { name, chat_id }) => {
-        acc[name] = chat_id;
-        return acc;
-    }, {});
+    return result;
+}
+
+export const getGroupChatIdByArtistName = async (name) => {
+    const result = await sql`
+        SELECT chat_id
+        FROM artists
+        WHERE name = ${name}
+    `;
+
+    return result;
 }
 
 export const addArtist = async (name, chatId) => {
@@ -19,9 +25,24 @@ export const addArtist = async (name, chatId) => {
         VALUES (${name}, ${chatId})
     `;
 
-    if (result.count === 0) {
-        throw new FailedToAddArtistError(name);
-    }
+    return result;
+}
+
+export const deleteArtist = async (name) => {
+    const result = await sql`
+        DELETE FROM artists
+        WHERE name = ${name}
+    `;
+
+    return result;
+}
+
+export const updateArtistChatId = async (name, chatId) => {
+    const result = await sql`
+        UPDATE artists
+        SET chat_id = ${chatId}
+        WHERE name = ${name}
+    `;
 
     return result;
 }

@@ -1,7 +1,6 @@
 create table artists (
-    id integer generated always as identity primary key,
-    name text not null,
-    chat_id text not null
+    name text not null primary key,
+    chat_id text not null unique
 );
 
 insert into artists (name, chat_id) values

@@ -1,16 +1,13 @@
-import {
-    TelegramGroupCreationError,
-    TelegramAddBotError,
-    FailedToAddArtistError,
-    CommandValidationError,
-    TelegramAPIError
-} from '../utils/errors/index.js';
 import { env, logger } from '../utils/config.js';
 import { buildHandlerResponse } from '../utils/helpers.js';
+import { 
+    commands,
+    parseCommand,
+    handleCreateArtist,
+    handleDeleteArtist
+} from '../services/adminService.js';
 import { sendAdminMessage } from '../clients/telegramClient.js';
-import { addArtist } from '../repositories/artistsRepository.js';
-import { parseCreateCommand } from '../services/adminCommandsService.js';
-import { addNotificationsBot, createGroup } from '../services/telegramService.js';
+import { CommandValidationError } from '../utils/errors/index.js';
 
 /**
  * Admin handler: performs business work and returns a standard status response.
@@ -21,7 +18,7 @@ export const adminHandler = async (event, _context) => {
     logger.debug('adminHandler event:', event);
 
     const { message } = JSON.parse(event.body);
-    const { chat, text, entities, date, message_id } = message;
+    const { chat, text, entities } = message;
 
     if (
         event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_SECRET_TOKEN ||
@@ -32,48 +29,40 @@ export const adminHandler = async (event, _context) => {
     }
 
     try {
-        const artistName = parseCreateCommand(text, entities);
+        const { command, artistName } = parseCommand(text, entities);
         logger.debug(`Parsed artist name: "${artistName}"`);
-        const groupChat = await createGroup(artistName);
-        logger.debug(`Created Telegram group with ID: ${groupChat.id}`);
-        await addNotificationsBot(groupChat);
-        logger.debug('Added notifications bot to the group');
-        await addArtist(artistName, groupChat.id);
-        logger.debug('Artist added to the database');
 
-        const successMessage =
-            `Successfully created group for "${artistName}".`;
-
-        await sendAdminMessage(successMessage, chat.id);
-
-        return buildHandlerResponse(200, 'Successfully added artist');
+        switch (command) {
+            case commands.CREATE: {
+                return await handleCreateArtist(artistName, chat.id);
+            }
+            case commands.DELETE: {
+                return await handleDeleteArtist(artistName, chat.id);
+            }
+            default: {
+                break;
+            }
+        }
     } catch (error) {
-        let res;
+        let response;
+        let reason;
 
         if (error instanceof CommandValidationError) {
-            logger.error('Invalid command received:', error);
-            res = { statusCode: 400, body: 'Invalid command' };
-        } else if (
-            error instanceof TelegramGroupCreationError ||
-            error instanceof TelegramAddBotError ||
-            error instanceof FailedToAddArtistError
-        ) {
-            logger.error('Error during artist addition process:', error);
-            res = { statusCode: 500, body: 'Failed to add artist' };
-        } else if (error instanceof TelegramAPIError) {
-            logger.error('Telegram API error:', error);
-            res = { statusCode: 502, body: 'Telegram API error' };
+            response = buildHandlerResponse(400, 'Unsupported command');
+            reason = `פקודה לא חוקית`;
         } else {
-            res = { statusCode: 500, body: 'An unexpected error occurred' };
+            response = buildHandlerResponse(500, 'An unexpected error occurred');
+            reason = 'שגיאה לא צפויה';
         }
+
+        logger.error(error);
 
         try {
-            await sendAdminMessage(`Error: text: '${text}', date: '${date}', message_id: '${message_id}'`, chat.id);
-            // await sendAdminMessage('חלה שגיאה ביצירת קבוצה', chat.id);
+            await sendAdminMessage(`חלה שגיאה ביצירת קבוצה. סיבה: ${reason}`, chat.id);
         } catch (err) {
-            logger.error('Failed to send validation error message:', err);
+            logger.error('Failed to send error message:', err);
         }
 
-        return res;
+        return response;
     }
 };

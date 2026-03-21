@@ -3,18 +3,18 @@ import {
     MissingBotCommandError,
     UnsupportedCommandError,
     MissingArtistNameError,
-    TelegramGroupCreationError,
-    TelegramAddBotError,
-    FailedToAddArtistError,
-    TelegramAPIError,
 } from '../../utils/errors/index.js';
 
-vi.mock('../../repositories/artistsRepository.js', () => ({ addArtist: vi.fn() }));
-vi.mock('../../clients/telegramClient.js', () => ({ sendAdminMessage: vi.fn() }));
-vi.mock('../../services/adminCommandsService.js', () => ({ parseCreateCommand: vi.fn() }));
+vi.mock('../../services/adminService.js', () => ({
+    commands: { CREATE: '/create', DELETE: '/delete' },
+    parseCommand: vi.fn(),
+    handleCreateArtist: vi.fn(),
+    handleDeleteArtist: vi.fn(),
+}));
 vi.mock('../../services/telegramService.js', () => ({
+    sendAdminMessage: vi.fn(),
     createGroup: vi.fn(),
-    addNotificationsBot: vi.fn(),
+    getGroupChatIdByArtistName: vi.fn(),
 }));
 vi.mock('../../utils/config.js', () => ({
     env: {
@@ -25,10 +25,8 @@ vi.mock('../../utils/config.js', () => ({
 }));
 
 const { adminHandler } = await import('../adminHandler.js');
-const { addArtist } = await import('../../repositories/artistsRepository.js');
-const { sendAdminMessage } = await import('../../clients/telegramClient.js');
-const { parseCreateCommand } = await import('../../services/adminCommandsService.js');
-const { createGroup, addNotificationsBot } = await import('../../services/telegramService.js');
+const { parseCommand, handleCreateArtist, handleDeleteArtist } = await import('../../services/adminService.js');
+const { sendAdminMessage } = await import('../../services/telegramService.js');
 
 function buildEvent(overrides = {}) {
     const ownerId = 12345;
@@ -59,222 +57,162 @@ describe('adminHandler', () => {
     });
 
     describe('authorization', () => {
-        it('returns 401 when x-telegram-bot-api-secret-token is missing', async () => {
-            const event = buildEvent({
-                headers: { 'x-telegram-bot-api-secret-token': undefined, 'content-type': 'application/json' },
-            });
+        it('returns 401 when secret token is missing', async () => {
+            const event = buildEvent({ headers: { 'x-telegram-bot-api-secret-token': undefined } });
 
             const res = await adminHandler(event, {});
 
             expect(res).toEqual({ statusCode: 401, body: 'Unauthorized' });
-            expect(parseCreateCommand).not.toHaveBeenCalled();
+            expect(parseCommand).not.toHaveBeenCalled();
         });
 
-        it('returns 401 when x-telegram-bot-api-secret-token does not match env', async () => {
-            const event = buildEvent({
-                headers: { 'x-telegram-bot-api-secret-token': 'wrong-secret', 'content-type': 'application/json' },
-            });
+        it('returns 401 when secret token does not match', async () => {
+            const event = buildEvent({ headers: { 'x-telegram-bot-api-secret-token': 'wrong-secret' } });
 
             const res = await adminHandler(event, {});
 
             expect(res).toEqual({ statusCode: 401, body: 'Unauthorized' });
-            expect(parseCreateCommand).not.toHaveBeenCalled();
+            expect(parseCommand).not.toHaveBeenCalled();
         });
 
-        it('returns 401 when chat id does not match ADMIN_BOT_OWNER_ID', async () => {
-            const event = buildEvent({
-                message: { chat: { id: 99999, type: 'private' }, text: '/create Foo', entities: [{ type: 'bot_command' }], message_id: 1, date: 1 },
-            });
+        it('returns 401 when chat id does not match owner', async () => {
+            const event = buildEvent({ message: { chat: { id: 99999, type: 'private' }, text: '/create Foo', entities: [{ type: 'bot_command' }], message_id: 1, date: 1, from: { id: 99999 } } });
 
             const res = await adminHandler(event, {});
 
             expect(res).toEqual({ statusCode: 401, body: 'Unauthorized' });
-            expect(parseCreateCommand).not.toHaveBeenCalled();
+            expect(parseCommand).not.toHaveBeenCalled();
+        });
+
+        it('does not notify admin on unauthorized requests', async () => {
+            const event = buildEvent({ headers: { 'x-telegram-bot-api-secret-token': 'wrong' } });
+
+            await adminHandler(event, {});
+
+            expect(sendAdminMessage).not.toHaveBeenCalled();
         });
     });
 
     describe('command validation', () => {
-        it('returns 400 and sends error reply when message has no bot_command entity', async () => {
-            parseCreateCommand.mockImplementation(() => {
-                throw new MissingBotCommandError();
-            });
-            const event = buildEvent();
+        it('returns 400 and notifies admin when bot command entity is missing', async () => {
+            parseCommand.mockImplementation(() => { throw new MissingBotCommandError(); });
 
-            const res = await adminHandler(event, {});
+            const res = await adminHandler(buildEvent(), {});
 
-            expect(res).toEqual({ statusCode: 400, body: 'Invalid command' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(
-                expect.stringContaining("Error: text: '/create Queen', date: '1234567890', message_id: '1'"),
-                12345
-            );
+            expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
-        it('returns 400 and sends error reply when command is not /create', async () => {
-            parseCreateCommand.mockImplementation(() => {
-                throw new UnsupportedCommandError('/other');
-            });
-            const event = buildEvent();
+        it('returns 400 and notifies admin for unsupported command', async () => {
+            parseCommand.mockImplementation(() => { throw new UnsupportedCommandError('/unknown'); });
 
-            const res = await adminHandler(event, {});
+            const res = await adminHandler(buildEvent(), {});
 
-            expect(res).toEqual({ statusCode: 400, body: 'Invalid command' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(
-                expect.stringContaining("Error: text: '/create Queen'"),
-                12345
-            );
+            expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
-        it('returns 400 and sends error reply when artist name is missing', async () => {
-            parseCreateCommand.mockImplementation(() => {
-                throw new MissingArtistNameError();
-            });
-            const event = buildEvent();
+        it('returns 400 and notifies admin when artist name is missing', async () => {
+            parseCommand.mockImplementation(() => { throw new MissingArtistNameError(); });
 
-            const res = await adminHandler(event, {});
+            const res = await adminHandler(buildEvent(), {});
 
-            expect(res).toEqual({ statusCode: 400, body: 'Invalid command' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(
-                expect.stringContaining("Error: text: '/create Queen'"),
-                12345
-            );
+            expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
-        it('does not call createGroup or addArtist when validation fails', async () => {
-            parseCreateCommand.mockImplementation(() => {
-                throw new MissingArtistNameError();
-            });
-            const event = buildEvent();
+        it('returns 400 even when the admin notification itself fails', async () => {
+            parseCommand.mockImplementation(() => { throw new MissingArtistNameError(); });
+            sendAdminMessage.mockRejectedValue(new Error('Network error'));
 
-            await adminHandler(event, {});
+            const res = await adminHandler(buildEvent(), {});
 
-            expect(createGroup).not.toHaveBeenCalled();
-            expect(addArtist).not.toHaveBeenCalled();
+            expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
+        });
+
+        it('does not call handleCreateArtist or handleDeleteArtist when validation fails', async () => {
+            parseCommand.mockImplementation(() => { throw new MissingArtistNameError(); });
+
+            await adminHandler(buildEvent(), {});
+
+            expect(handleCreateArtist).not.toHaveBeenCalled();
+            expect(handleDeleteArtist).not.toHaveBeenCalled();
         });
     });
 
-    describe('success flow', () => {
-        it('parses command, creates group, adds bot, adds artist, sends success message and returns 200', async () => {
-            const artistName = 'Queen';
-            const groupChat = { id: 98765, title: artistName };
-            parseCreateCommand.mockReturnValue(artistName);
-            createGroup.mockResolvedValue(groupChat);
-            addNotificationsBot.mockResolvedValue(undefined);
-            addArtist.mockResolvedValue({});
-            sendAdminMessage.mockResolvedValue(undefined);
+    describe('/create command', () => {
+        it('calls handleCreateArtist with the parsed artist name and chat id', async () => {
+            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
+            handleCreateArtist.mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
 
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
+            await adminHandler(buildEvent(), {});
 
-            expect(parseCreateCommand).toHaveBeenCalledWith('/create Queen', expect.any(Array));
-            expect(createGroup).toHaveBeenCalledWith(artistName);
-            expect(addNotificationsBot).toHaveBeenCalledWith(groupChat);
-            expect(addArtist).toHaveBeenCalledWith(artistName, 98765);
-            expect(sendAdminMessage).toHaveBeenCalledWith(
-                `Successfully created group for "${artistName}".`,
-                12345
-            );
+            expect(handleCreateArtist).toHaveBeenCalledWith('Queen', 12345);
+        });
+
+        it('returns the response from handleCreateArtist', async () => {
+            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
+            handleCreateArtist.mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
+
+            const res = await adminHandler(buildEvent(), {});
+
             expect(res).toEqual({ statusCode: 200, body: 'Successfully added artist' });
         });
 
-        it('sends success message with correct artist name for Hebrew name', async () => {
-            const artistName = 'רון חיון';
-            parseCreateCommand.mockReturnValue(artistName);
-            createGroup.mockResolvedValue({ id: 111, title: artistName });
-            addNotificationsBot.mockResolvedValue(undefined);
-            addArtist.mockResolvedValue({});
-            sendAdminMessage.mockResolvedValue(undefined);
+        it('works with Hebrew artist names', async () => {
+            parseCommand.mockReturnValue({ command: '/create', artistName: 'רון חיון' });
+            handleCreateArtist.mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
+            const event = buildEvent({ message: { text: '/create רון חיון', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1, from: { id: 12345 } } });
 
-            const event = buildEvent({ message: { text: `/create ${artistName}`, entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1 } });
             const res = await adminHandler(event, {});
 
-            expect(sendAdminMessage).toHaveBeenCalledWith(
-                `Successfully created group for "${artistName}".`,
-                12345
-            );
+            expect(handleCreateArtist).toHaveBeenCalledWith('רון חיון', 12345);
             expect(res.statusCode).toBe(200);
         });
     });
 
-    describe('errors during create flow', () => {
-        it('returns 500 and sends error when createGroup throws TelegramGroupCreationError', async () => {
-            parseCreateCommand.mockReturnValue('Queen');
-            createGroup.mockRejectedValue(new TelegramGroupCreationError('Queen', new Error('API error')));
-            sendAdminMessage.mockResolvedValue(undefined);
+    describe('/delete command', () => {
+        it('calls handleDeleteArtist with the parsed artist name and chat id', async () => {
+            parseCommand.mockReturnValue({ command: '/delete', artistName: 'Queen' });
+            handleDeleteArtist.mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
+            const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1, from: { id: 12345 } } });
 
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
+            await adminHandler(event, {});
 
-            expect(res).toEqual({ statusCode: 500, body: 'Failed to add artist' });
-            expect(addArtist).not.toHaveBeenCalled();
-            expect(sendAdminMessage).toHaveBeenCalled();
-            expect(sendAdminMessage.mock.calls[0][0]).toContain('Error:');
+            expect(handleDeleteArtist).toHaveBeenCalledWith('Queen', 12345);
         });
 
-        it('returns 500 when addNotificationsBot throws TelegramAddBotError', async () => {
-            const groupChat = { id: 98765, title: 'Queen' };
-            parseCreateCommand.mockReturnValue('Queen');
-            createGroup.mockResolvedValue(groupChat);
-            addNotificationsBot.mockRejectedValue(new TelegramAddBotError('Queen', new Error('Add failed')));
+        it('returns the response from handleDeleteArtist', async () => {
+            parseCommand.mockReturnValue({ command: '/delete', artistName: 'Queen' });
+            handleDeleteArtist.mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
+            const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1, from: { id: 12345 } } });
+
+            const res = await adminHandler(event, {});
+
+            expect(res).toEqual({ statusCode: 501, body: 'Not implemented' });
+        });
+    });
+
+    describe('unexpected errors', () => {
+        it('returns 500 and notifies admin when handleCreateArtist throws', async () => {
+            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
+            handleCreateArtist.mockRejectedValue(new Error('Unexpected failure'));
             sendAdminMessage.mockResolvedValue(undefined);
 
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
-
-            expect(res).toEqual({ statusCode: 500, body: 'Failed to add artist' });
-            expect(addArtist).not.toHaveBeenCalled();
-            expect(sendAdminMessage).toHaveBeenCalled();
-        });
-
-        it('returns 500 when addArtist throws FailedToAddArtistError', async () => {
-            const groupChat = { id: 98765, title: 'Queen' };
-            parseCreateCommand.mockReturnValue('Queen');
-            createGroup.mockResolvedValue(groupChat);
-            addNotificationsBot.mockResolvedValue(undefined);
-            addArtist.mockRejectedValue(new FailedToAddArtistError('Queen'));
-            sendAdminMessage.mockResolvedValue(undefined);
-
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
-
-            expect(res).toEqual({ statusCode: 500, body: 'Failed to add artist' });
-            expect(sendAdminMessage).toHaveBeenCalled();
-        });
-
-        it('returns 502 when sendAdminMessage throws TelegramAPIError', async () => {
-            parseCreateCommand.mockReturnValue('Queen');
-            createGroup.mockResolvedValue({ id: 1, title: 'Queen' });
-            addNotificationsBot.mockResolvedValue(undefined);
-            addArtist.mockResolvedValue({});
-            sendAdminMessage.mockRejectedValue(new TelegramAPIError({ status: 429, statusText: 'Too Many Requests' }));
-
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
-
-            expect(res).toEqual({ statusCode: 502, body: 'Telegram API error' });
-        });
-
-        it('returns 500 for unexpected errors', async () => {
-            parseCreateCommand.mockReturnValue('Queen');
-            createGroup.mockRejectedValue(new Error('Unexpected failure'));
-            sendAdminMessage.mockResolvedValue(undefined);
-
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
+            const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 500, body: 'An unexpected error occurred' });
             expect(sendAdminMessage).toHaveBeenCalled();
         });
 
-        it('still sends error reply when sendAdminMessage fails after a validation error', async () => {
-            parseCreateCommand.mockImplementation(() => {
-                throw new MissingArtistNameError();
-            });
-            sendAdminMessage.mockRejectedValue(new Error('Network error'));
+        it('returns 500 even when the admin notification itself also fails', async () => {
+            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
+            handleCreateArtist.mockRejectedValue(new Error('Unexpected failure'));
+            sendAdminMessage.mockRejectedValue(new Error('Also broken'));
 
-            const event = buildEvent();
-            const res = await adminHandler(event, {});
+            const res = await adminHandler(buildEvent(), {});
 
-            expect(res).toEqual({ statusCode: 400, body: 'Invalid command' });
+            expect(res).toEqual({ statusCode: 500, body: 'An unexpected error occurred' });
         });
     });
 });
