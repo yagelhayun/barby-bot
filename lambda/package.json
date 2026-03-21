@@ -8,7 +8,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev:noti": "node src/index.js notifications",
-    "dev:admin": "node src/index.js admin"
+    "dev:admin": "node src/index.js admin",
+    "migrate": "supabase db push --project-ref barby-bot"
   },
   "keywords": [],
   "author": "",

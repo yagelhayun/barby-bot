@@ -5,7 +5,7 @@ import {
     getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromDB,
     updateArtistChatId as updateArtistChatIdInDB
 } from "../repositories/artistsRepository.js";
-import { FailedToAddArtistError } from '../utils/errors/index.js';
+import { FailedToAddArtistError, GroupNotFoundError } from '../utils/errors/index.js';
 import { 
     getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromTelegram
 } from './telegramService.js';
@@ -29,8 +29,20 @@ export const addArtist = async (name, chatId) => {
 }
 
 export const alignTelegramAndDBStates = async (artistName) => {
-    const telegramId = await getGroupChatIdByArtistNameFromTelegram(artistName);
-    const dbId = (await getGroupChatIdByArtistNameFromDB(artistName))[0]?.chat_id;
+    let telegramId;
+    let dbId;
+    try {
+        telegramId = await getGroupChatIdByArtistNameFromTelegram(artistName);
+    } catch (err) {
+        if (!(err instanceof GroupNotFoundError)) {
+            throw err;
+        }
+    }
+    
+    try {
+        dbId = (await getGroupChatIdByArtistNameFromDB(artistName))[0]?.chat_id;
+    } catch (err) {
+    }
 
     if (!!dbId && !!telegramId && dbId === telegramId) {
         logger.info(`Artist "${artistName}" already exists in both Telegram and DB with matching chat IDs. No action needed.`);

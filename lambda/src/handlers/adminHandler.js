@@ -6,6 +6,7 @@ import {
     handleCreateArtist,
     handleDeleteArtist
 } from '../services/adminService.js';
+import { CommandValidationError } from '../utils/errors/index.js';
 
 /**
  * Admin handler: performs business work and returns a standard status response.

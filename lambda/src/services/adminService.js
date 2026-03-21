@@ -6,6 +6,7 @@ import {
     FailedToAddArtistError,
     TelegramAPIError
 } from '../utils/errors/index.js';
+import { logger } from '../utils/config.js';
 import { buildHandlerResponse } from '../utils/helpers.js';
 import { sendAdminMessage } from '../clients/telegramClient.js';
 import { addArtist, alignTelegramAndDBStates } from '../services/artistsService.js';

@@ -15,3 +15,9 @@ export class ArtistAlreadyExistsInDBError extends Error {
         super(`Artist "${artistName}" already exists in the database.`);
     }
 }
+
+export class GroupNotFoundError extends Error {
+    constructor(groupName) {
+        super(`Telegram group "${groupName}" not found.`);
+    }
+}
