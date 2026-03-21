@@ -28,7 +28,7 @@ export const notificationsHandler = async (_event, _context) => {
 
         logger.info(`Sent ${succeeded}/${results.length} notification messages`);
 
-        return failed.length === results.length
+        return results.length > 0 && failed.length === results.length
             ? buildHandlerResponse(502, 'All notifications failed to send')
             : buildHandlerResponse(200, 'Notifications sent successfully');
     } catch (error) {
