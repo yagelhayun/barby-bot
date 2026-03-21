@@ -84,5 +84,6 @@ export const handleCreateArtist = async (artistName, adminChatId) => {
 }
 
 export const handleDeleteArtist = async (artistName, adminChatId) => {
-    throw new Error('Not implemented');
+    await sendAdminMessage(`הפקודה /delete עדיין לא זמינה`, adminChatId);
+    return buildHandlerResponse(501, 'Not implemented');
 }

@@ -56,43 +56,43 @@ export const updateArtistChatId = async (name, chatId) => {
     }
 }
 
-export const alignTelegramAndDBStates = async (artistName) => {
-    let telegramId;
-    let dbId;
-    
+const tryGetId = async (getter) => {
     try {
-        telegramId = await getGroupChatIdByArtistNameFromTelegram(artistName);
+        return await getter();
     } catch (err) {
-        if (!(err instanceof GroupNotFoundError)) {
-            throw err;
-        }
+        if (err instanceof GroupNotFoundError) return null;
+        throw err;
     }
-    
-    try {
-        dbId = await getGroupChatIdByArtistName(artistName);
-    } catch (err) {
-        if (!(err instanceof GroupNotFoundError)) {
-            throw err;
-        }
-    }
+};
 
-    if (!!dbId && !!telegramId && dbId === telegramId) {
-        logger.info(`Artist "${artistName}" already exists in both Telegram and DB with matching chat IDs. No action needed.`);
-        return false;
-    } else if (!!dbId && !!telegramId && dbId !== telegramId) {
-        logger.info(`Mismatch between Telegram and DB states for artist "${artistName}". Updating DB with Telegram chat ID.`);
-        await updateArtistChatId(artistName, telegramId);
-        return false;
-    } else if (!dbId && !!telegramId) {
-        logger.info(`Artist "${artistName}" exists in Telegram but not in DB. Adding to DB.`);
-        await addArtist(artistName, telegramId);
-        return false;
-    } else if (!!dbId && !telegramId) {
-        logger.info(`Artist "${artistName}" exists in DB but not in Telegram. Deleting from DB.`);
-        await deleteArtist(artistName);
-        return false;
-    } else {
-        logger.info(`Artist "${artistName}" does not exist in either Telegram or DB. Proceeding with creation.`);
+export const alignTelegramAndDBStates = async (artistName) => {
+    const [telegramId, dbId] = await Promise.all([
+        tryGetId(() => getGroupChatIdByArtistNameFromTelegram(artistName)),
+        tryGetId(() => getGroupChatIdByArtistName(artistName)),
+    ]);
+
+    if (!telegramId && !dbId) {
+        logger.info(`Artist "${artistName}" not found anywhere. Proceeding with creation.`);
         return true;
     }
+
+    if (telegramId && dbId) {
+        if (dbId !== telegramId) {
+            logger.info(`Chat ID mismatch for "${artistName}". Syncing DB with Telegram.`);
+            await updateArtistChatId(artistName, telegramId);
+        } else {
+            logger.info(`Artist "${artistName}" already in sync. No action needed.`);
+        }
+        return false;
+    }
+
+    if (!dbId) {
+        logger.info(`Artist "${artistName}" found in Telegram but not in DB. Adding to DB.`);
+        await addArtist(artistName, telegramId);
+    } else {
+        logger.info(`Artist "${artistName}" found in DB but not in Telegram. Removing from DB.`);
+        await deleteArtist(artistName);
+    }
+
+    return false;
 }
