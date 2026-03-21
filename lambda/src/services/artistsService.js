@@ -5,7 +5,7 @@ import {
     getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromDB,
     updateArtistChatId as updateArtistChatIdInDB
 } from "../repositories/artistsRepository.js";
-import { FailedToAddArtistError, GroupNotFoundError } from '../utils/errors/index.js';
+import { FailedToAddArtistError, GroupNotFoundError, GroupNotFoundInDatabaseError } from '../utils/errors/index.js';
 import { 
     getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromTelegram
 } from './telegramService.js';
@@ -32,7 +32,7 @@ export const getGroupChatIdByArtistName = async (name) => {
     const result = await getGroupChatIdByArtistNameFromDB(name);
 
     if (result.length === 0) {
-        throw new GroupNotFoundError(name);
+        throw new GroupNotFoundInDatabaseError(name);
     }
 
     return result[0].chat_id;
@@ -42,7 +42,7 @@ export const deleteArtist = async (name) => {
     const result = await deleteArtistFromDB(name);
 
     if (result.count === 0) {
-        throw new GroupNotFoundError(name);
+        throw new GroupNotFoundInDatabaseError(name);
     }
 
     logger.info(result);

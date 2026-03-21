@@ -4,7 +4,7 @@ import {
     UnsupportedCommandError,
     TelegramGroupCreationError,
     FailedToAddArtistError,
-    TelegramAPIError
+    UnableToSendBotMessageError
 } from '../utils/errors/index.js';
 import { logger } from '../utils/config.js';
 import { buildHandlerResponse } from '../utils/helpers.js';
@@ -63,7 +63,7 @@ export const handleCreateArtist = async (artistName, adminChatId) => {
         } else if  (error instanceof FailedToAddArtistError) {
             response = buildHandlerResponse(500, 'Failed to add artist to database');
             reason = `שגיאה בהוספת האמן למסד הנתונים`;
-        } else if (error instanceof TelegramAPIError) {
+        } else if (error instanceof UnableToSendBotMessageError) {
             response = buildHandlerResponse(502, 'Telegram API error');
             reason = `שגיאה בתקשורת עם טלגרם`;
         } else {

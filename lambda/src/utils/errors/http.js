@@ -1,4 +1,4 @@
-class FetchError extends Error {
+export class FetchError extends Error {
     constructor(message, res) {
         super(message);
 
@@ -14,10 +14,3 @@ export class BarbyAPIError extends FetchError {
         super('Unable to fetch the Barby API', res);
     }
 }
-
-export class TelegramAPIError extends FetchError {
-    constructor(res) {
-        super('Unable to send Telegram message', res);
-    }
-}
-

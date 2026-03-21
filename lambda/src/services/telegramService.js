@@ -1,7 +1,10 @@
 import { Api } from 'telegram';
 import { env, logger } from '../utils/config.js';
 import { getTelegramClient } from '../clients/adminTelegramClient.js';
-import { TelegramGroupCreationError, GroupNotFoundError } from '../utils/errors/index.js';
+import { 
+    TelegramGroupCreationError,
+    GroupNotFoundInTelegramError
+} from '../utils/errors/index.js';
 
 const getGroupName = (artistName) => `${artistName} בארבי`;
 
@@ -32,7 +35,7 @@ export const getGroupChatIdByArtistName = async (artistName) => {
 
     if (!group) {
         logger.error(`Group with name "${groupName}" not found`);
-        throw new GroupNotFoundError(groupName);
+        throw new GroupNotFoundInTelegramError(groupName);
     }
     
     logger.debug("Found group ID", group.id);

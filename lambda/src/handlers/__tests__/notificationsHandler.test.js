@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { NoShowsError, TelegramAPIError } from '../../utils/errors/index.js';
+import { NoShowsError, UnableToSendBotMessageError } from '../../utils/errors/index.js';
 
 vi.mock('../../repositories/artistsRepository.js', () => ({ getArtists: vi.fn() }));
 vi.mock('../../services/showsService.js', () => ({ getArtistShows: vi.fn() }));
@@ -91,7 +91,7 @@ describe('notificationsHandler', () => {
         it('returns 502 when NoShowsError is thrown but sending health message fails', async () => {
             getArtists.mockResolvedValue({ 'Artist1': 111 });
             getArtistShows.mockRejectedValue(new NoShowsError(['Artist1']));
-            sendNotificationMessage.mockRejectedValue(new TelegramAPIError({ status: 429, statusText: 'Too Many Requests' }));
+            sendNotificationMessage.mockRejectedValue(new UnableToSendBotMessageError({ status: 429, statusText: 'Too Many Requests' }));
 
             const res = await notificationsHandler({}, {});
 
@@ -99,11 +99,11 @@ describe('notificationsHandler', () => {
         });
     });
 
-    describe('TelegramAPIError', () => {
-        it('returns 502 when sendNotificationMessage throws TelegramAPIError', async () => {
+    describe('UnableToSendBotMessageError', () => {
+        it('returns 502 when sendNotificationMessage throws UnableToSendBotMessageError', async () => {
             getArtists.mockResolvedValue({ 'Artist1': 111 });
             getArtistShows.mockResolvedValue([{ artist: 'Artist1', shows: ['Show text'] }]);
-            sendNotificationMessage.mockRejectedValue(new TelegramAPIError({ status: 403, statusText: 'Forbidden' }));
+            sendNotificationMessage.mockRejectedValue(new UnableToSendBotMessageError({ status: 403, statusText: 'Forbidden' }));
 
             const res = await notificationsHandler({}, {});
 

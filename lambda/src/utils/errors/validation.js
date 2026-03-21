@@ -1,23 +1,17 @@
-export class ArtistAlreadyExistsError extends Error {
-    constructor(artistName) {
-        super(`Artist "${artistName}" already exists in the system.`);
-    }
-}
-
-export class ArtistAlreadyExistsInTelegramError extends Error {
-    constructor(artistName) {
-        super(`Artist "${artistName}" already exists in Telegram.`);
-    }
-}
-
-export class ArtistAlreadyExistsInDBError extends Error {
-    constructor(artistName) {
-        super(`Artist "${artistName}" already exists in the database.`);
-    }
-}
-
 export class GroupNotFoundError extends Error {
     constructor(groupName) {
-        super(`Telegram group "${groupName}" not found.`);
+        super(`Group "${groupName}" not found.`);
+    }
+}
+
+export class GroupNotFoundInTelegramError extends GroupNotFoundError {
+    constructor(groupName) {
+        super(`Group "${groupName}" not found in Telegram.`);
+    }
+}
+
+export class GroupNotFoundInDatabaseError extends GroupNotFoundError {
+    constructor(groupName) {
+        super(`Group "${groupName}" not found in database.`);
     }
 }

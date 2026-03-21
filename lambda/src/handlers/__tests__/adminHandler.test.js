@@ -6,7 +6,7 @@ import {
     TelegramGroupCreationError,
     TelegramAddBotError,
     FailedToAddArtistError,
-    TelegramAPIError,
+    UnableToSendBotMessageError,
 } from '../../utils/errors/index.js';
 
 vi.mock('../../repositories/artistsRepository.js', () => ({ addArtist: vi.fn() }));
@@ -240,12 +240,12 @@ describe('adminHandler', () => {
             expect(sendAdminMessage).toHaveBeenCalled();
         });
 
-        it('returns 502 when sendAdminMessage throws TelegramAPIError', async () => {
+        it('returns 502 when sendAdminMessage throws UnableToSendBotMessageError', async () => {
             parseCreateCommand.mockReturnValue('Queen');
             createGroup.mockResolvedValue({ id: 1, title: 'Queen' });
             addNotificationsBot.mockResolvedValue(undefined);
             addArtist.mockResolvedValue({});
-            sendAdminMessage.mockRejectedValue(new TelegramAPIError({ status: 429, statusText: 'Too Many Requests' }));
+            sendAdminMessage.mockRejectedValue(new UnableToSendBotMessageError({ status: 429, statusText: 'Too Many Requests' }));
 
             const event = buildEvent();
             const res = await adminHandler(event, {});

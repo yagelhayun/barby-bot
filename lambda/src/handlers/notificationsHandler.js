@@ -1,9 +1,9 @@
 import { env, logger } from '../utils/config.js';
 import { buildHandlerResponse } from '../utils/helpers.js';
 import { getArtistShows } from '../services/showsService.js';
-import { getArtists } from '../repositories/artistsRepository.js';
+import { getArtists } from '../services/artistsService.js';
 import { sendNotificationMessage } from '../clients/telegramClient.js';
-import { NoShowsError, TelegramAPIError } from '../utils/errors/index.js';
+import { NoShowsError, UnableToSendBotMessageError } from '../utils/errors/index.js';
 
 /**
  * Notifications handler: sends telegram messages and returns a status object
@@ -38,7 +38,7 @@ export const notificationsHandler = async (_event, _context) => {
                 logger.error('Failed to send health check message', sendError);
                 return buildHandlerResponse(502, 'Telegram API error');
             }
-        } else if (error instanceof TelegramAPIError) {
+        } else if (error instanceof UnableToSendBotMessageError) {
             logger.error('Failed to send notification message:', error);
             return buildHandlerResponse(502, 'Telegram API error');
         } else {
