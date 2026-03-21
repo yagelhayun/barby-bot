@@ -8,8 +8,8 @@ const sql = postgres({
     username: env.DATABASE_USER,
     password: env.DATABASE_PASSWORD,
     ssl: 'require',
-    max: 1,           // Lambda runs one request at a time — no pool needed
-    idle_timeout: 20, // close idle connections after 20s
+    max: 1,
+    idle_timeout: 20,
     connect_timeout: 10,
 });
 

@@ -43,6 +43,14 @@ data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "${path.module}/lambda"
   output_path = "${path.module}/lambda.zip"
+  excludes = [
+    ".env",
+    "vitest.config.js",
+    "package-lock.json",
+    "scripts",
+    "supabase",
+    "src/handlers/__tests__",
+  ]
 }
 
 resource "aws_lambda_function" "barby_bot" {
