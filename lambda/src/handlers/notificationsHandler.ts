@@ -39,7 +39,7 @@ export const notificationsHandler = async (_event: unknown, _context: unknown): 
     } catch (error) {
         if (error instanceof NoShowsError) {
             try {
-                const { artists }: { artists: string[] } = error;
+                const { artists }: NoShowsError = error;
 
                 logger.warn(error.message);
                 logger.info('Sending health check message');
