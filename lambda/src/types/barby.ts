@@ -1,4 +1,4 @@
-export interface Show {
+export type Show = {
     showId: string;
     showName: string;
     showDate: string;
@@ -6,10 +6,10 @@ export interface Show {
     showPrice: number;
     showSold: number;
     showSoldMaxBuy: number;
-}
+};
 
-export interface BarbyApiResponse {
+export type BarbyApiResponse = {
     returnShow?: {
         show?: Show[];
     };
-}
+};

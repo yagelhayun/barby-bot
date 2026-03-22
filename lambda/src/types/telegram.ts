@@ -1,15 +1,15 @@
-export interface TelegramEntity {
+export type TelegramEntity = {
     offset: number;
     length: number;
     type: string;
-}
+};
 
-export interface TelegramMessage {
+export type TelegramMessage = {
     chat: { id: number; type: string };
     text: string;
     entities?: TelegramEntity[];
-}
+};
 
-export interface TelegramWebhookBody {
+export type TelegramWebhookBody = {
     message: TelegramMessage;
-}
+};

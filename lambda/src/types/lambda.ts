@@ -1,11 +1,11 @@
-export interface ScheduledEvent {
+export type ScheduledEvent = {
     source: string;
-}
+};
 
-export interface HttpEvent {
+export type HttpEvent = {
     version: string;
     headers: Record<string, string | undefined>;
     body: string;
-}
+};
 
 export type LambdaEvent = ScheduledEvent | HttpEvent;
