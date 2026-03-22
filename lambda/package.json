@@ -8,9 +8,8 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "dev:noti": "npx tsx scripts/dev.ts notifications",
-    "dev:admin": "npx tsx scripts/dev.ts admin",
+    "test:live:noti": "npx tsx scripts/live.test.ts notifications",
+    "test:live:admin": "npx tsx scripts/live.test.ts admin",
     "migrate": "supabase db push --project-ref barby-bot"
   },
   "keywords": [],
