@@ -3,7 +3,7 @@ import {
     MissingBotCommandError,
     UnsupportedCommandError,
     MissingArtistNameError,
-} from '../../utils/errors/index.js';
+} from '../../utils/errors';
 
 vi.mock('../../services/adminService.js', () => ({
     commands: { CREATE: '/create', DELETE: '/delete' },
@@ -26,7 +26,18 @@ const { adminHandler } = await import('../adminHandler.js');
 const { parseCommand, handleCreateArtist, handleDeleteArtist } = await import('../../services/adminService.js');
 const { sendAdminMessage } = await import('../../clients/telegramClient.js');
 
-function buildEvent(overrides = {}) {
+function buildEvent(overrides: {
+    message?: Partial<{
+        message_id: number;
+        from: { id: number; is_bot?: boolean };
+        chat: { id: number; type: string };
+        date: number;
+        entities: Array<{ offset?: number; length?: number; type: string }>;
+        text: string;
+    }>;
+    headers?: Record<string, string | undefined>;
+    event?: Record<string, unknown>;
+} = {}) {
     const ownerId = 12345;
     const message = {
         message_id: 1,
@@ -93,7 +104,7 @@ describe('adminHandler', () => {
 
     describe('command validation', () => {
         it('returns 400 and notifies admin when bot command entity is missing', async () => {
-            parseCommand.mockImplementation(() => { throw new MissingBotCommandError(); });
+            (parseCommand as ReturnType<typeof vi.fn>).mockImplementation(() => { throw new MissingBotCommandError(); });
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -102,7 +113,7 @@ describe('adminHandler', () => {
         });
 
         it('returns 400 and notifies admin for unsupported command', async () => {
-            parseCommand.mockImplementation(() => { throw new UnsupportedCommandError('/unknown'); });
+            (parseCommand as ReturnType<typeof vi.fn>).mockImplementation(() => { throw new UnsupportedCommandError('/unknown'); });
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -111,7 +122,7 @@ describe('adminHandler', () => {
         });
 
         it('returns 400 and notifies admin when artist name is missing', async () => {
-            parseCommand.mockImplementation(() => { throw new MissingArtistNameError(); });
+            (parseCommand as ReturnType<typeof vi.fn>).mockImplementation(() => { throw new MissingArtistNameError(); });
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -120,8 +131,8 @@ describe('adminHandler', () => {
         });
 
         it('returns 400 even when the admin notification itself fails', async () => {
-            parseCommand.mockImplementation(() => { throw new MissingArtistNameError(); });
-            sendAdminMessage.mockRejectedValue(new Error('Network error'));
+            (parseCommand as ReturnType<typeof vi.fn>).mockImplementation(() => { throw new MissingArtistNameError(); });
+            (sendAdminMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -129,7 +140,7 @@ describe('adminHandler', () => {
         });
 
         it('does not call handleCreateArtist or handleDeleteArtist when validation fails', async () => {
-            parseCommand.mockImplementation(() => { throw new MissingArtistNameError(); });
+            (parseCommand as ReturnType<typeof vi.fn>).mockImplementation(() => { throw new MissingArtistNameError(); });
 
             await adminHandler(buildEvent(), {});
 
@@ -140,8 +151,8 @@ describe('adminHandler', () => {
 
     describe('/create command', () => {
         it('calls handleCreateArtist with the parsed artist name and chat id', async () => {
-            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
-            handleCreateArtist.mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
+            (handleCreateArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
 
             await adminHandler(buildEvent(), {});
 
@@ -149,8 +160,8 @@ describe('adminHandler', () => {
         });
 
         it('returns the response from handleCreateArtist', async () => {
-            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
-            handleCreateArtist.mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
+            (handleCreateArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -158,22 +169,22 @@ describe('adminHandler', () => {
         });
 
         it('works with Hebrew artist names', async () => {
-            parseCommand.mockReturnValue({ command: '/create', artistName: 'רון חיון' });
-            handleCreateArtist.mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
-            const event = buildEvent({ message: { text: '/create רון חיון', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1, from: { id: 12345 } } });
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'רון חיון' });
+            (handleCreateArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
+            const event = buildEvent({ message: { text: '/create רון חיון', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             const res = await adminHandler(event, {});
 
             expect(handleCreateArtist).toHaveBeenCalledWith('רון חיון', 12345);
-            expect(res.statusCode).toBe(200);
+            expect(res?.statusCode).toBe(200);
         });
     });
 
     describe('/delete command', () => {
         it('calls handleDeleteArtist with the parsed artist name and chat id', async () => {
-            parseCommand.mockReturnValue({ command: '/delete', artistName: 'Queen' });
-            handleDeleteArtist.mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
-            const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1, from: { id: 12345 } } });
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/delete', artistName: 'Queen' });
+            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
+            const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             await adminHandler(event, {});
 
@@ -181,9 +192,9 @@ describe('adminHandler', () => {
         });
 
         it('returns the response from handleDeleteArtist', async () => {
-            parseCommand.mockReturnValue({ command: '/delete', artistName: 'Queen' });
-            handleDeleteArtist.mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
-            const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345 }, message_id: 1, date: 1, from: { id: 12345 } } });
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/delete', artistName: 'Queen' });
+            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
+            const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             const res = await adminHandler(event, {});
 
@@ -193,9 +204,9 @@ describe('adminHandler', () => {
 
     describe('unexpected errors', () => {
         it('returns 500 and notifies admin when handleCreateArtist throws', async () => {
-            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
-            handleCreateArtist.mockRejectedValue(new Error('Unexpected failure'));
-            sendAdminMessage.mockResolvedValue(undefined);
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
+            (handleCreateArtist as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Unexpected failure'));
+            (sendAdminMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -204,9 +215,9 @@ describe('adminHandler', () => {
         });
 
         it('returns 500 even when the admin notification itself also fails', async () => {
-            parseCommand.mockReturnValue({ command: '/create', artistName: 'Queen' });
-            handleCreateArtist.mockRejectedValue(new Error('Unexpected failure'));
-            sendAdminMessage.mockRejectedValue(new Error('Also broken'));
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
+            (handleCreateArtist as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Unexpected failure'));
+            (sendAdminMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Also broken'));
 
             const res = await adminHandler(buildEvent(), {});
 

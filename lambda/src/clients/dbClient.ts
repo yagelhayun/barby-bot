@@ -1,5 +1,5 @@
-import postgres from "postgres";
-import { env } from '../utils/config.js';
+import postgres from 'postgres';
+import { env } from '../utils/config';
 
 const sql = postgres({
     host: env.DATABASE_HOST,
@@ -13,6 +13,6 @@ const sql = postgres({
     connect_timeout: 10,
 });
 
-export const closeDb = () => sql.end();
+export const closeDb = (): Promise<void> => sql.end();
 
 export default sql;

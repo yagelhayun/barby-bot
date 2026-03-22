@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { NoShowsError } from '../../utils/errors/index.js';
+import { NoShowsError } from '../../utils/errors';
 
 vi.mock('../../services/artistsService.js', () => ({ getArtists: vi.fn() }));
 vi.mock('../../services/showsService.js', () => ({ getArtistShows: vi.fn() }));
@@ -22,12 +22,12 @@ describe('notificationsHandler', () => {
 
     describe('success', () => {
         it('sends a notification per show and returns 200', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
-            getArtistShows.mockResolvedValue([
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([
                 { artist: 'Artist1', shows: ['Show A', 'Show B'] },
                 { artist: 'Artist2', shows: ['Show C'] },
             ]);
-            sendNotificationMessage.mockResolvedValue(undefined);
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
             const res = await notificationsHandler({}, {});
 
@@ -40,8 +40,8 @@ describe('notificationsHandler', () => {
         });
 
         it('returns 200 and sends no messages when all show lists are empty', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111 });
-            getArtistShows.mockResolvedValue([{ artist: 'Artist1', shows: [] }]);
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([{ artist: 'Artist1', shows: [] }]);
 
             const res = await notificationsHandler({}, {});
 
@@ -52,9 +52,9 @@ describe('notificationsHandler', () => {
 
     describe('partial and full failures', () => {
         it('returns 200 when some messages fail but not all', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111 });
-            getArtistShows.mockResolvedValue([{ artist: 'Artist1', shows: ['Show A', 'Show B'] }]);
-            sendNotificationMessage
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([{ artist: 'Artist1', shows: ['Show A', 'Show B'] }]);
+            (sendNotificationMessage as ReturnType<typeof vi.fn>)
                 .mockResolvedValueOnce(undefined)
                 .mockRejectedValueOnce(new Error('Send failed'));
 
@@ -64,12 +64,12 @@ describe('notificationsHandler', () => {
         });
 
         it('returns 502 when all messages fail', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
-            getArtistShows.mockResolvedValue([
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([
                 { artist: 'Artist1', shows: ['Show A'] },
                 { artist: 'Artist2', shows: ['Show B'] },
             ]);
-            sendNotificationMessage.mockRejectedValue(new Error('Telegram down'));
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Telegram down'));
 
             const res = await notificationsHandler({}, {});
 
@@ -77,21 +77,21 @@ describe('notificationsHandler', () => {
         });
 
         it('logs each failed message individually', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111 });
-            getArtistShows.mockResolvedValue([{ artist: 'Artist1', shows: ['Show A', 'Show B'] }]);
-            sendNotificationMessage.mockRejectedValue(new Error('Send failed'));
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([{ artist: 'Artist1', shows: ['Show A', 'Show B'] }]);
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Send failed'));
 
             await notificationsHandler({}, {});
 
-            expect(logger.error).toHaveBeenCalledTimes(2);
+            expect((logger as unknown as { error: ReturnType<typeof vi.fn> }).error).toHaveBeenCalledTimes(2);
         });
     });
 
     describe('NoShowsError', () => {
         it('sends a health check message and returns 300', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
-            getArtistShows.mockRejectedValue(new NoShowsError(['Artist1', 'Artist2']));
-            sendNotificationMessage.mockResolvedValue(undefined);
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockRejectedValue(new NoShowsError(['Artist1', 'Artist2']));
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
             const res = await notificationsHandler({}, {});
 
@@ -104,9 +104,9 @@ describe('notificationsHandler', () => {
         });
 
         it('returns 502 when the health check message itself fails to send', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111 });
-            getArtistShows.mockRejectedValue(new NoShowsError(['Artist1']));
-            sendNotificationMessage.mockRejectedValue(new Error('Telegram down'));
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockRejectedValue(new NoShowsError(['Artist1']));
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Telegram down'));
 
             const res = await notificationsHandler({}, {});
 
@@ -116,7 +116,7 @@ describe('notificationsHandler', () => {
 
     describe('unexpected errors', () => {
         it('returns 500 when getArtists throws', async () => {
-            getArtists.mockRejectedValue(new Error('DB connection failed'));
+            (getArtists as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('DB connection failed'));
 
             const res = await notificationsHandler({}, {});
 
@@ -125,8 +125,8 @@ describe('notificationsHandler', () => {
         });
 
         it('returns 500 when getArtistShows throws a non-NoShows error', async () => {
-            getArtists.mockResolvedValue({ 'Artist1': 111 });
-            getArtistShows.mockRejectedValue(new Error('Barby API down'));
+            (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
+            (getArtistShows as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Barby API down'));
 
             const res = await notificationsHandler({}, {});
 
@@ -134,11 +134,11 @@ describe('notificationsHandler', () => {
         });
 
         it('logs unexpected errors', async () => {
-            getArtists.mockRejectedValue(new Error('Something went wrong'));
+            (getArtists as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Something went wrong'));
 
             await notificationsHandler({}, {});
 
-            expect(logger.error).toHaveBeenCalled();
+            expect((logger as unknown as { error: ReturnType<typeof vi.fn> }).error).toHaveBeenCalled();
         });
     });
 });

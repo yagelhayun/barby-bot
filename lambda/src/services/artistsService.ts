@@ -3,32 +3,33 @@ import {
     addArtist as addArtistToDB,
     deleteArtist as deleteArtistFromDB,
     getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromDB,
-    updateArtistChatId as updateArtistChatIdInDB
-} from "../repositories/artistsRepository.js";
-import { FailedToAddArtistError, GroupNotFoundError, GroupNotFoundInDatabaseError } from '../utils/errors/index.js';
-import { 
-    getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromTelegram
-} from './telegramService.js';
-import { logger } from "../utils/config.js";
+    updateArtistChatId as updateArtistChatIdInDB,
+} from '../repositories/artistsRepository';
+import { FailedToAddArtistError, GroupNotFoundError, GroupNotFoundInDatabaseError } from '../utils/errors';
+import {
+    getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromTelegram,
+} from './telegramService';
+import { logger } from '../utils/config';
+import type { ArtistMap } from '../types';
 
-export const getArtists = async () => {
+export const getArtists = async (): Promise<ArtistMap> => {
     const artists = await getArtistsFromDB();
 
-    return artists.reduce((acc, { name, chat_id }) => {
+    return artists.reduce<ArtistMap>((acc, { name, chat_id }) => {
         acc[name] = chat_id;
         return acc;
     }, {});
-}
+};
 
-export const addArtist = async (name, chatId) => {
+export const addArtist = async (name: string, chatId: string): Promise<void> => {
     const result = await addArtistToDB(name, chatId);
 
     if (result.count === 0) {
         throw new FailedToAddArtistError(name);
     }
-}
+};
 
-export const getGroupChatIdByArtistName = async (name) => {
+export const getGroupChatIdByArtistName = async (name: string): Promise<string> => {
     const result = await getGroupChatIdByArtistNameFromDB(name);
 
     if (result.length === 0) {
@@ -36,27 +37,27 @@ export const getGroupChatIdByArtistName = async (name) => {
     }
 
     return result[0].chat_id;
-}
+};
 
-export const deleteArtist = async (name) => {
+export const deleteArtist = async (name: string): Promise<void> => {
     const result = await deleteArtistFromDB(name);
 
     if (result.count === 0) {
         throw new GroupNotFoundInDatabaseError(name);
     }
 
-    logger.info(result);
-}
+    logger.info(`Deleted artist "${name}" from database`);
+};
 
-export const updateArtistChatId = async (name, chatId) => {
+export const updateArtistChatId = async (name: string, chatId: string): Promise<void> => {
     const result = await updateArtistChatIdInDB(name, chatId);
-    
+
     if (result.count === 0) {
         throw new GroupNotFoundInDatabaseError(name); // TODO: not sure if this is the right error to throw here, since the artist does exist but the update failed. Maybe a new error type is needed?
     }
-}
+};
 
-const tryGetId = async (getter) => {
+const tryGetId = async (getter: () => Promise<string>): Promise<string | null> => {
     try {
         return await getter();
     } catch (err) {
@@ -65,8 +66,8 @@ const tryGetId = async (getter) => {
     }
 };
 
-export const alignTelegramAndDBStates = async (artistName) => {
-    const [telegramId, dbId] = await Promise.all([
+export const alignTelegramAndDBStates = async (artistName: string): Promise<boolean> => {
+    const [telegramId, dbId]: [string | null, string | null] = await Promise.all([
         tryGetId(() => getGroupChatIdByArtistNameFromTelegram(artistName)),
         tryGetId(() => getGroupChatIdByArtistName(artistName)),
     ]);
@@ -86,7 +87,7 @@ export const alignTelegramAndDBStates = async (artistName) => {
         return false;
     }
 
-    if (!dbId) {
+    if (!dbId && telegramId) {
         logger.info(`Artist "${artistName}" found in Telegram but not in DB. Adding to DB.`);
         await addArtist(artistName, telegramId);
     } else {
@@ -95,4 +96,4 @@ export const alignTelegramAndDBStates = async (artistName) => {
     }
 
     return false;
-}
+};

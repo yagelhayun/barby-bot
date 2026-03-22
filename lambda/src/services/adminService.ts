@@ -4,31 +4,32 @@ import {
     UnsupportedCommandError,
     TelegramGroupCreationError,
     FailedToAddArtistError,
-    UnableToSendBotMessageError
-} from '../utils/errors/index.js';
-import { logger } from '../utils/config.js';
-import { buildHandlerResponse } from '../utils/helpers.js';
-import { sendAdminMessage } from '../clients/telegramClient.js';
-import { addArtist, alignTelegramAndDBStates } from '../services/artistsService.js';
-import { createGroup, getGroupChatIdByArtistName } from '../services/telegramService.js';
+    UnableToSendBotMessageError,
+} from '../utils/errors';
+import { logger } from '../utils/config';
+import { buildHandlerResponse } from '../utils/helpers';
+import { sendAdminMessage } from '../clients/telegramClient';
+import { addArtist, alignTelegramAndDBStates } from '../services/artistsService';
+import { createGroup, getGroupChatIdByArtistName } from '../services/telegramService';
+import type { HandlerResponse, TelegramEntity, ParsedCommand } from '../types';
 
-export const commands = {
-    CREATE: '/create',
-    DELETE: '/delete'
+export enum commands {
+    CREATE = '/create',
+    DELETE = '/delete',
 }
 
-export const parseCommand = (text, entities) => {
+export const parseCommand = (text: string, entities: TelegramEntity[] | undefined): ParsedCommand => {
     if (!entities || entities[0]?.type !== 'bot_command') {
         throw new MissingBotCommandError();
     }
 
-    const [command, ...rest] = text.trim().split(/\s+/);
+    const [command, ...rest]: string[] = text.trim().split(/\s+/);
 
-    if (!Object.values(commands).includes(command)) {
+    if (!Object.values(commands).includes(command as commands)) {
         throw new UnsupportedCommandError(command);
     }
 
-    const artistName = rest.join(' ').trim();
+    const artistName: string = rest.join(' ').trim();
 
     if (!artistName) {
         throw new MissingArtistNameError();
@@ -37,30 +38,30 @@ export const parseCommand = (text, entities) => {
     return { command, artistName };
 };
 
-export const handleCreateArtist = async (artistName, adminChatId) => {
+export const handleCreateArtist = async (artistName: string, adminChatId: number): Promise<HandlerResponse> => {
     try {
-        const actionNeeded = await alignTelegramAndDBStates(artistName);
+        const actionNeeded: boolean = await alignTelegramAndDBStates(artistName);
 
         if (actionNeeded) {
             await createGroup(artistName);
             logger.info('Created Telegram group with the notifications bot');
-            const groupChatId = await getGroupChatIdByArtistName(artistName);
+            const groupChatId: string = await getGroupChatIdByArtistName(artistName);
 
             await addArtist(artistName, groupChatId);
             logger.info('Artist added to the database');
 
-            await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, adminChatId);   
+            await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, adminChatId);
         }
 
         return buildHandlerResponse(200, 'Successfully added artist');
     } catch (error) {
-        let response;
-        let reason;
+        let response: HandlerResponse;
+        let reason: string;
 
         if (error instanceof TelegramGroupCreationError) {
             response = buildHandlerResponse(500, 'Failed to create artist group on Telegram');
             reason = `שגיאה ביצירת הקבוצה בטלגרם`;
-        } else if  (error instanceof FailedToAddArtistError) {
+        } else if (error instanceof FailedToAddArtistError) {
             response = buildHandlerResponse(500, 'Failed to add artist to database');
             reason = `שגיאה בהוספת האמן למסד הנתונים`;
         } else if (error instanceof UnableToSendBotMessageError) {
@@ -81,9 +82,9 @@ export const handleCreateArtist = async (artistName, adminChatId) => {
 
         return response;
     }
-}
+};
 
-export const handleDeleteArtist = async (artistName, adminChatId) => {
+export const handleDeleteArtist = async (artistName: string, adminChatId: number): Promise<HandlerResponse> => {
     await sendAdminMessage(`הפקודה /delete עדיין לא זמינה`, adminChatId);
     return buildHandlerResponse(501, 'Not implemented');
-}
+};

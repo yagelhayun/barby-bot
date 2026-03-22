@@ -1,11 +1,13 @@
 class DatabaseError extends Error {
-    constructor(message) {
+    constructor(message: string) {
         super(message);
     }
 }
 
 export class FailedToAddArtistError extends DatabaseError {
-    constructor(artist) {
+    public readonly artist: string;
+
+    constructor(artist: string) {
         super(`Failed to add artist ${artist} to database`);
         this.artist = artist;
     }

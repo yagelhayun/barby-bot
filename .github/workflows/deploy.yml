@@ -53,6 +53,14 @@ jobs:
         working-directory: lambda
         run: npm test
 
+      - name: Typecheck
+        working-directory: lambda
+        run: npm run typecheck
+
+      - name: Build
+        working-directory: lambda
+        run: npm run build
+
       - name: Prune devDependencies before deploy
         working-directory: lambda
         run: npm prune --omit=dev

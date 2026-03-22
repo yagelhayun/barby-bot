@@ -1,5 +1,5 @@
 export class CommandValidationError extends Error {
-    constructor(message) {
+    constructor(message: string) {
         super(message);
     }
 }
@@ -11,7 +11,9 @@ export class MissingBotCommandError extends CommandValidationError {
 }
 
 export class UnsupportedCommandError extends CommandValidationError {
-    constructor(command) {
+    public readonly command: string;
+
+    constructor(command: string) {
         super(`Unsupported command "${command}".`);
         this.command = command;
     }

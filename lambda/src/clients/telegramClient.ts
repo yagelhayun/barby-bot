@@ -1,11 +1,11 @@
-import { env, logger } from '../utils/config.js';
-import { UnableToSendBotMessageError } from '../utils/errors/index.js';
+import { env, logger } from '../utils/config';
+import { UnableToSendBotMessageError } from '../utils/errors';
 
-const sendMessage = (token) => async (message, chatId) => {
+const sendMessage = (token: string) => async (message: string, chatId: string | number): Promise<void> => {
     logger.info(`Sending message to chat ID ${chatId}`);
 
     const requestUrl = `https://api.telegram.org/bot${token}/sendMessage`;
-    const requestOptions = {
+    const requestOptions: RequestInit = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

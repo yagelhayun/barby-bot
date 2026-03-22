@@ -45,18 +45,20 @@ data "archive_file" "lambda_zip" {
   output_path = "${path.module}/lambda.zip"
   excludes = [
     ".env",
-    "vitest.config.js",
+    "vitest.config.ts",
+    "vite.config.ts",
+    "tsconfig.json",
     "package-lock.json",
     "scripts",
     "supabase",
-    "src/handlers/__tests__",
+    "src",
   ]
 }
 
 resource "aws_lambda_function" "barby_bot" {
   function_name = "barby_bot"
   filename      = data.archive_file.lambda_zip.output_path
-  handler       = "src/index.main"
+  handler       = "index.main"
   runtime       = "nodejs24.x"
 
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256

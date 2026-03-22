@@ -18,3 +18,6 @@ node_modules/
 .env.keys
 .env.local
 .env.*.local
+
+# Builds
+**/dist

@@ -1,23 +1,25 @@
-import { env, logger } from '../utils/config.js';
-import { buildHandlerResponse } from '../utils/helpers.js';
-import { 
+import { env, logger } from '../utils/config';
+import { buildHandlerResponse } from '../utils/helpers';
+import {
     commands,
     parseCommand,
     handleCreateArtist,
-    handleDeleteArtist
-} from '../services/adminService.js';
-import { sendAdminMessage } from '../clients/telegramClient.js';
-import { CommandValidationError } from '../utils/errors/index.js';
+    handleDeleteArtist,
+} from '../services/adminService';
+import { sendAdminMessage } from '../clients/telegramClient';
+import { CommandValidationError } from '../utils/errors';
+import type { HandlerResponse, HttpEvent, TelegramWebhookBody, TelegramMessage } from '../types';
 
 /**
  * Admin handler: performs business work and returns a standard status response.
  * In AWS Lambda, the top-level `main` always returns the final HTTP response.
  * This return value is still useful for unit tests and local invocation.
  */
-export const adminHandler = async (event, _context) => {
+export const adminHandler = async (event: HttpEvent, _context: unknown): Promise<HandlerResponse | undefined> => {
     logger.debug('adminHandler event:', event);
 
-    const { message } = JSON.parse(event.body);
+    const body: TelegramWebhookBody = JSON.parse(event.body);
+    const { message }: { message: TelegramMessage } = body;
     const { chat, text, entities } = message;
 
     if (
@@ -29,7 +31,7 @@ export const adminHandler = async (event, _context) => {
     }
 
     try {
-        const { command, artistName } = parseCommand(text, entities);
+        const { command, artistName }: { command: string; artistName: string } = parseCommand(text, entities);
         logger.debug(`Parsed artist name: "${artistName}"`);
 
         switch (command) {
@@ -44,8 +46,8 @@ export const adminHandler = async (event, _context) => {
             }
         }
     } catch (error) {
-        let response;
-        let reason;
+        let response: HandlerResponse;
+        let reason: string;
 
         if (error instanceof CommandValidationError) {
             response = buildHandlerResponse(400, 'Unsupported command');
