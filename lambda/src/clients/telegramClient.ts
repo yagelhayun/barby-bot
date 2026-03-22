@@ -14,8 +14,8 @@ const sendMessage = (token: string) => async (message: string, chatId: string | 
         }),
     };
 
-    logger.debug(`Fetching URL '${requestUrl}' with options`, requestOptions); // TODO: find a way to censor the token in logs without losing the ability to debug other options
-    const res = await fetch(requestUrl, requestOptions);
+    logger.debug(`Fetching URL '${requestUrl}' with options`, { requestOptions });
+    const res: Response = await fetch(requestUrl, requestOptions);
 
     if (!res.ok) {
         throw new UnableToSendBotMessageError(res);

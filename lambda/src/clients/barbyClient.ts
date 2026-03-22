@@ -17,6 +17,7 @@ export const getShows = async (): Promise<Show[]> => {
         },
     };
 
+    logger.debug(`Fetching URL '${requestUrl}' with options`, { requestOptions });
     const res: Response = await fetch(requestUrl, requestOptions);
 
     if (!res.ok) {
