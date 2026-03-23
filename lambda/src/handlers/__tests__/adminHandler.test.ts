@@ -12,19 +12,19 @@ vi.mock('../../services/adminService.js', () => ({
     handleDeleteArtist: vi.fn(),
 }));
 vi.mock('../../clients/telegramClient.js', () => ({
-    sendAdminMessage: vi.fn(),
+    sendMessage: vi.fn(),
 }));
 vi.mock('../../utils/config.js', () => ({
     env: {
-        ADMIN_BOT_SECRET_TOKEN: 'test-secret',
-        ADMIN_BOT_OWNER_ID: '12345',
+        BOT_API_AUTH_TOKEN: 'test-secret',
+        OWNER_TG_USER_ID: '12345',
     },
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
 const { adminHandler } = await import('../adminHandler.js');
 const { parseCommand, handleCreateArtist, handleDeleteArtist } = await import('../../services/adminService.js');
-const { sendAdminMessage } = await import('../../clients/telegramClient.js');
+const { sendMessage } = await import('../../clients/telegramClient.js');
 
 function buildEvent(overrides: {
     message?: Partial<{
@@ -98,7 +98,7 @@ describe('adminHandler', () => {
 
             await adminHandler(event, {});
 
-            expect(sendAdminMessage).not.toHaveBeenCalled();
+            expect(sendMessage).not.toHaveBeenCalled();
         });
     });
 
@@ -109,7 +109,7 @@ describe('adminHandler', () => {
             const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
+            expect(sendMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
         it('returns 400 and notifies admin for unsupported command', async () => {
@@ -118,7 +118,7 @@ describe('adminHandler', () => {
             const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
+            expect(sendMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
         it('returns 400 and notifies admin when artist name is missing', async () => {
@@ -127,12 +127,12 @@ describe('adminHandler', () => {
             const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 400, body: 'Unsupported command' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
+            expect(sendMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
         it('returns 400 even when the admin notification itself fails', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockImplementation(() => { throw new MissingArtistNameError(); });
-            (sendAdminMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
+            (sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Network error'));
 
             const res = await adminHandler(buildEvent(), {});
 
@@ -164,7 +164,7 @@ describe('adminHandler', () => {
             const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 200, body: 'Successfully added artist' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
+            expect(sendMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
         it('works with Hebrew artist names', async () => {
@@ -196,7 +196,7 @@ describe('adminHandler', () => {
             const res = await adminHandler(event, {});
 
             expect(res).toEqual({ statusCode: 200, body: 'Successfully deleted artist' });
-            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
+            expect(sendMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
     });
 
@@ -204,18 +204,18 @@ describe('adminHandler', () => {
         it('returns 500 and notifies admin when handleCreateArtist throws', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
             (handleCreateArtist as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Unexpected failure'));
-            (sendAdminMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+            (sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
             const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 500, body: 'An unexpected error occurred' });
-            expect(sendAdminMessage).toHaveBeenCalled();
+            expect(sendMessage).toHaveBeenCalled();
         });
 
         it('returns 500 even when the admin notification itself also fails', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
             (handleCreateArtist as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Unexpected failure'));
-            (sendAdminMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Also broken'));
+            (sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Also broken'));
 
             const res = await adminHandler(buildEvent(), {});
 

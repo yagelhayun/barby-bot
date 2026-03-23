@@ -13,15 +13,13 @@ permissions:
 env:
   TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
   TF_VAR_AWS_REGION: ${{ vars.AWS_REGION }}
-  TF_VAR_NOTIFICATIONS_BOT_TOKEN: ${{ secrets.NOTIFICATIONS_BOT_TOKEN }}
-  TF_VAR_NOTIFICATIONS_BOT_USERNAME: ${{ vars.NOTIFICATIONS_BOT_USERNAME }}
-  TF_VAR_ADMIN_BOT_USERNAME: ${{ vars.ADMIN_BOT_USERNAME }}
-  TF_VAR_ADMIN_BOT_TOKEN: ${{ secrets.ADMIN_BOT_TOKEN }}
-  TF_VAR_ADMIN_BOT_SECRET_TOKEN: ${{ secrets.ADMIN_BOT_SECRET_TOKEN }}
-  TF_VAR_ADMIN_BOT_OWNER_ID: ${{ vars.ADMIN_BOT_OWNER_ID }}
-  TF_VAR_ADMIN_TG_API_ID: ${{ secrets.ADMIN_TG_API_ID }}
-  TF_VAR_ADMIN_TG_API_HASH: ${{ secrets.ADMIN_TG_API_HASH }}
-  TF_VAR_ADMIN_TG_STRING_SESSION: ${{ secrets.ADMIN_TG_STRING_SESSION }}
+  TF_VAR_BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+  TF_VAR_BOT_USERNAME: ${{ vars.BOT_USERNAME }}
+  TF_VAR_BOT_API_AUTH_TOKEN: ${{ secrets.BOT_API_AUTH_TOKEN }}
+  TF_VAR_OWNER_TG_USER_ID: ${{ vars.OWNER_TG_USER_ID }}
+  TF_VAR_OWNER_TG_API_ID: ${{ secrets.OWNER_TG_API_ID }}
+  TF_VAR_OWNER_TG_API_HASH: ${{ secrets.OWNER_TG_API_HASH }}
+  TF_VAR_OWNER_TG_STRING_SESSION: ${{ secrets.OWNER_TG_STRING_SESSION }}
   TF_VAR_HEALTH_CHAT_ID: ${{ vars.HEALTH_CHAT_ID }}
   TF_VAR_DATABASE_USER: ${{ vars.DATABASE_USER }}
   TF_VAR_DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
@@ -68,7 +66,7 @@ jobs:
       - name: Configure AWS credentials (OIDC role assumption)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/Authenticator
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform

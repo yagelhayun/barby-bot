@@ -7,7 +7,7 @@ import {
     handleCreateArtist,
     handleDeleteArtist,
 } from '../services/adminService';
-import { sendAdminMessage } from '../clients/telegramClient';
+import { sendMessage } from '../clients/telegramClient';
 import {
     CommandValidationError,
     DatabaseConnectionError,
@@ -39,8 +39,8 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
     setLogMetadata('chatId', chat.id);
 
     if (
-        event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_SECRET_TOKEN ||
-        chat?.id !== parseInt(env.ADMIN_BOT_OWNER_ID, 10)
+        event.headers['x-telegram-bot-api-secret-token'] !== env.BOT_API_AUTH_TOKEN ||
+        chat?.id !== parseInt(env.OWNER_TG_USER_ID, 10)
     ) {
         logger.error('Unauthorized access attempt');
         return buildHandlerResponse(401, 'Unauthorized');
@@ -55,12 +55,12 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         switch (command) {
             case commands.CREATE: {
                 await handleCreateArtist(artistName);
-                await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, chat.id);
+                await sendMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully added artist');
             }
             case commands.DELETE: {
                 await handleDeleteArtist(artistName);
-                await sendAdminMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
+                await sendMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully deleted artist');
             }
         }
@@ -97,7 +97,7 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         logger.error(error);
 
         try {
-            await sendAdminMessage(userMessage, chat.id);
+            await sendMessage(userMessage, chat.id);
         } catch (err) {
             logger.error('Failed to send error message to admin:', err);
         }

@@ -69,23 +69,21 @@ resource "aws_lambda_function" "barby_bot" {
 
   environment {
     variables = {
-      NODE_ENV                    = var.NODE_ENV
-      LOG_LEVEL                   = var.LOG_LEVEL
-      NOTIFICATIONS_BOT_TOKEN     = var.NOTIFICATIONS_BOT_TOKEN
-      NOTIFICATIONS_BOT_USERNAME  = var.NOTIFICATIONS_BOT_USERNAME
-      ADMIN_BOT_USERNAME          = var.ADMIN_BOT_USERNAME
-      ADMIN_BOT_TOKEN             = var.ADMIN_BOT_TOKEN
-      ADMIN_BOT_SECRET_TOKEN      = var.ADMIN_BOT_SECRET_TOKEN
-      ADMIN_BOT_OWNER_ID          = var.ADMIN_BOT_OWNER_ID
-      ADMIN_TG_API_ID             = var.ADMIN_TG_API_ID
-      ADMIN_TG_API_HASH           = var.ADMIN_TG_API_HASH
-      ADMIN_TG_STRING_SESSION     = var.ADMIN_TG_STRING_SESSION
-      DATABASE_USER               = var.DATABASE_USER
-      DATABASE_PASSWORD           = var.DATABASE_PASSWORD
-      DATABASE_HOST               = var.DATABASE_HOST
-      DATABASE_PORT               = var.DATABASE_PORT
-      DATABASE_NAME               = var.DATABASE_NAME
-      HEALTH_CHAT_ID              = var.HEALTH_CHAT_ID
+      NODE_ENV                = var.NODE_ENV
+      LOG_LEVEL               = var.LOG_LEVEL
+      BOT_TOKEN               = var.BOT_TOKEN
+      BOT_USERNAME            = var.BOT_USERNAME
+      BOT_API_AUTH_TOKEN      = var.BOT_API_AUTH_TOKEN
+      OWNER_TG_USER_ID        = var.OWNER_TG_USER_ID
+      OWNER_TG_API_ID         = var.OWNER_TG_API_ID
+      OWNER_TG_API_HASH       = var.OWNER_TG_API_HASH
+      OWNER_TG_STRING_SESSION = var.OWNER_TG_STRING_SESSION
+      DATABASE_USER           = var.DATABASE_USER
+      DATABASE_PASSWORD       = var.DATABASE_PASSWORD
+      DATABASE_HOST           = var.DATABASE_HOST
+      DATABASE_PORT           = var.DATABASE_PORT
+      DATABASE_NAME           = var.DATABASE_NAME
+      HEALTH_CHAT_ID          = var.HEALTH_CHAT_ID
     }
   }
 }
