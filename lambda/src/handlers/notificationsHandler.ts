@@ -3,7 +3,7 @@ import { env, logger } from '../utils/config';
 import { buildHandlerResponse } from '../utils/helpers';
 import { getArtistShows } from '../services/showsService';
 import { getArtists } from '../services/artistsService';
-import { sendMessage } from '../clients/telegramClient';
+import { sendNotificationMessage } from '../clients/telegramClient';
 import { DatabaseConnectionError, NoShowsError } from '../utils/errors';
 import type { HandlerResponse, ArtistMap, ArtistShows } from '../types';
 
@@ -22,7 +22,7 @@ export const notificationsHandler = async (_event: unknown, _context: unknown): 
         const artistShows: ArtistShows[] = await getArtistShows(Object.keys(artists));
         const messages: Promise<void>[] = artistShows.flatMap(({ artist, shows }: ArtistShows) => {
             const chatId: string = artists[artist];
-            return shows.map((show: string) => sendMessage(show, chatId));
+            return shows.map((show: string) => sendNotificationMessage(show, chatId));
         });
         setLogMetadata('messageCount', messages.length);
 
@@ -47,7 +47,7 @@ export const notificationsHandler = async (_event: unknown, _context: unknown): 
 
                 logger.warn('No shows found for any artist', { artists });
                 logger.info('Sending health check message');
-                await sendMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, env.HEALTH_CHAT_ID);
+                await sendNotificationMessage(`אין הופעות לאף אחד מ${artists.join('/')} כעת :(`, env.HEALTH_CHAT_ID);
                 return buildHandlerResponse(300, 'No shows to notify, sent health check message');
             } catch (sendError) {
                 logger.error('Failed to send health check message', { error: sendError });

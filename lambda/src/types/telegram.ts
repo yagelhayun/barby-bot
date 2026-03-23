@@ -6,10 +6,10 @@ export type TelegramEntity = {
 
 export type TelegramMessage = {
     chat: { id: number; type: string };
-    text: string;
+    text?: string;
     entities?: TelegramEntity[];
 };
 
 export type TelegramWebhookBody = {
-    message: TelegramMessage;
+    message?: TelegramMessage;
 };

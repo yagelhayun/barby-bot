@@ -13,16 +13,25 @@ variable "LOG_LEVEL" {
     default = "debug"
 }
 
-variable "BOT_USERNAME" {
+variable "NOTIFICATIONS_BOT_USERNAME" {
     type = string
 }
 
-variable "BOT_TOKEN" {
+variable "NOTIFICATIONS_BOT_TOKEN" {
     type = string
     sensitive = true
 }
 
-variable "BOT_API_AUTH_TOKEN" {
+variable "ADMIN_BOT_USERNAME" {
+    type = string
+}
+
+variable "ADMIN_BOT_TOKEN" {
+    type = string
+    sensitive = true
+}
+
+variable "ADMIN_BOT_API_AUTH_TOKEN" {
     type = string
     sensitive = true
     description = "Secret token for Telegram Bot API webhook verification"

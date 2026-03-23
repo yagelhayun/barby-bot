@@ -13,8 +13,8 @@ export enum commands {
     DELETE = '/delete',
 }
 
-export const parseCommand = (text: string, entities: TelegramEntity[] | undefined): ParsedCommand => {
-    if (!entities || entities[0]?.type !== 'bot_command') {
+export const parseCommand = (text: string | undefined, entities: TelegramEntity[] | undefined): ParsedCommand => {
+    if (!entities || entities[0]?.type !== 'bot_command' || !text) {
         throw new MissingBotCommandError();
     }
 

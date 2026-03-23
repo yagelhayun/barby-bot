@@ -7,7 +7,7 @@ import {
     handleCreateArtist,
     handleDeleteArtist,
 } from '../services/adminService';
-import { sendMessage } from '../clients/telegramClient';
+import { sendAdminMessage } from '../clients/telegramClient';
 import {
     CommandValidationError,
     DatabaseConnectionError,
@@ -33,13 +33,19 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
     logger.debug('Admin handler event received', { event });
 
     const body: TelegramWebhookBody = JSON.parse(event.body);
-    const { message }: TelegramWebhookBody = body;
+    const { message } = body;
+
+    if (!message) {
+        logger.info('Update has no message field, ignoring');
+        return buildHandlerResponse(200, 'Update ignored');
+    }
+
     const { chat, text, entities } = message;
 
     setLogMetadata('chatId', chat.id);
 
     if (
-        event.headers['x-telegram-bot-api-secret-token'] !== env.BOT_API_AUTH_TOKEN ||
+        event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_API_AUTH_TOKEN ||
         chat?.id !== parseInt(env.OWNER_TG_USER_ID, 10)
     ) {
         logger.error('Unauthorized access attempt');
@@ -55,12 +61,12 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         switch (command) {
             case commands.CREATE: {
                 await handleCreateArtist(artistName);
-                await sendMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, chat.id);
+                await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully added artist');
             }
             case commands.DELETE: {
                 await handleDeleteArtist(artistName);
-                await sendMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
+                await sendAdminMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully deleted artist');
             }
         }
@@ -97,7 +103,7 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         logger.error(error);
 
         try {
-            await sendMessage(userMessage, chat.id);
+            await sendAdminMessage(userMessage, chat.id);
         } catch (err) {
             logger.error('Failed to send error message to admin:', err);
         }

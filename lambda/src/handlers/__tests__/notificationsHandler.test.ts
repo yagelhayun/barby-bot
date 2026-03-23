@@ -3,7 +3,7 @@ import { NoShowsError } from '../../utils/errors';
 
 vi.mock('../../services/artistsService.js', () => ({ getArtists: vi.fn() }));
 vi.mock('../../services/showsService.js', () => ({ getArtistShows: vi.fn() }));
-vi.mock('../../clients/telegramClient.js', () => ({ sendMessage: vi.fn() }));
+vi.mock('../../clients/telegramClient.js', () => ({ sendNotificationMessage: vi.fn() }));
 vi.mock('../../utils/config.js', () => ({
     env: { HEALTH_CHAT_ID: '999888' },
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -12,7 +12,7 @@ vi.mock('../../utils/config.js', () => ({
 const { notificationsHandler } = await import('../notificationsHandler.js');
 const { getArtists } = await import('../../services/artistsService.js');
 const { getArtistShows } = await import('../../services/showsService.js');
-const { sendMessage } = await import('../../clients/telegramClient.js');
+const { sendNotificationMessage } = await import('../../clients/telegramClient.js');
 const { logger } = await import('../../utils/config.js');
 
 describe('notificationsHandler', () => {
@@ -27,15 +27,15 @@ describe('notificationsHandler', () => {
                 { artist: 'Artist1', shows: ['Show A', 'Show B'] },
                 { artist: 'Artist2', shows: ['Show C'] },
             ]);
-            (sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
             const res = await notificationsHandler({}, {});
 
             expect(getArtistShows).toHaveBeenCalledWith(['Artist1', 'Artist2']);
-            expect(sendMessage).toHaveBeenCalledTimes(3);
-            expect(sendMessage).toHaveBeenCalledWith('Show A', 111);
-            expect(sendMessage).toHaveBeenCalledWith('Show B', 111);
-            expect(sendMessage).toHaveBeenCalledWith('Show C', 222);
+            expect(sendNotificationMessage).toHaveBeenCalledTimes(3);
+            expect(sendNotificationMessage).toHaveBeenCalledWith('Show A', 111);
+            expect(sendNotificationMessage).toHaveBeenCalledWith('Show B', 111);
+            expect(sendNotificationMessage).toHaveBeenCalledWith('Show C', 222);
             expect(res).toEqual({ statusCode: 200, body: 'Notifications sent successfully' });
         });
 
@@ -45,7 +45,7 @@ describe('notificationsHandler', () => {
 
             const res = await notificationsHandler({}, {});
 
-            expect(sendMessage).not.toHaveBeenCalled();
+            expect(sendNotificationMessage).not.toHaveBeenCalled();
             expect(res).toEqual({ statusCode: 200, body: 'Notifications sent successfully' });
         });
     });
@@ -54,7 +54,7 @@ describe('notificationsHandler', () => {
         it('returns 200 when some messages fail but not all', async () => {
             (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
             (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([{ artist: 'Artist1', shows: ['Show A', 'Show B'] }]);
-            (sendMessage as ReturnType<typeof vi.fn>)
+            (sendNotificationMessage as ReturnType<typeof vi.fn>)
                 .mockResolvedValueOnce(undefined)
                 .mockRejectedValueOnce(new Error('Send failed'));
 
@@ -69,7 +69,7 @@ describe('notificationsHandler', () => {
                 { artist: 'Artist1', shows: ['Show A'] },
                 { artist: 'Artist2', shows: ['Show B'] },
             ]);
-            (sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Telegram down'));
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Telegram down'));
 
             const res = await notificationsHandler({}, {});
 
@@ -79,7 +79,7 @@ describe('notificationsHandler', () => {
         it('logs each failed message individually', async () => {
             (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
             (getArtistShows as ReturnType<typeof vi.fn>).mockResolvedValue([{ artist: 'Artist1', shows: ['Show A', 'Show B'] }]);
-            (sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Send failed'));
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Send failed'));
 
             await notificationsHandler({}, {});
 
@@ -91,12 +91,12 @@ describe('notificationsHandler', () => {
         it('sends a health check message and returns 300', async () => {
             (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111, 'Artist2': 222 });
             (getArtistShows as ReturnType<typeof vi.fn>).mockRejectedValue(new NoShowsError(['Artist1', 'Artist2']));
-            (sendMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
             const res = await notificationsHandler({}, {});
 
-            expect(sendMessage).toHaveBeenCalledOnce();
-            expect(sendMessage).toHaveBeenCalledWith(
+            expect(sendNotificationMessage).toHaveBeenCalledOnce();
+            expect(sendNotificationMessage).toHaveBeenCalledWith(
                 expect.stringContaining('Artist1/Artist2'),
                 '999888'
             );
@@ -106,7 +106,7 @@ describe('notificationsHandler', () => {
         it('returns 502 when the health check message itself fails to send', async () => {
             (getArtists as ReturnType<typeof vi.fn>).mockResolvedValue({ 'Artist1': 111 });
             (getArtistShows as ReturnType<typeof vi.fn>).mockRejectedValue(new NoShowsError(['Artist1']));
-            (sendMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Telegram down'));
+            (sendNotificationMessage as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Telegram down'));
 
             const res = await notificationsHandler({}, {});
 
@@ -121,7 +121,7 @@ describe('notificationsHandler', () => {
             const res = await notificationsHandler({}, {});
 
             expect(res).toEqual({ statusCode: 500, body: 'An unexpected error occurred' });
-            expect(sendMessage).not.toHaveBeenCalled();
+            expect(sendNotificationMessage).not.toHaveBeenCalled();
         });
 
         it('returns 500 when getArtistShows throws a non-NoShows error', async () => {

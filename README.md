@@ -53,3 +53,7 @@ Open this in a browser: https://api.telegram.org/bot<BOT_TOKEN>/getUpdates
 curl --location 'https://api.telegram.org/bot<BOT_TOKEN>/setWebhook?secret_token=<AUTH_TOKEN>' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'url=<API_URL>'
+
+## TODO
+
+create another command that runs the notifications flow on demand

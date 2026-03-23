@@ -16,9 +16,11 @@ export const env = cleanEnv(process.env, {
     OWNER_TG_API_HASH: str(),
     OWNER_TG_STRING_SESSION: str(),
 
-    BOT_TOKEN: str(),
-    BOT_USERNAME: str(),
-    BOT_API_AUTH_TOKEN: str(),
+    ADMIN_BOT_API_AUTH_TOKEN: str(),
+    ADMIN_BOT_USERNAME: str(),
+    ADMIN_BOT_TOKEN: str(),
+    NOTIFICATIONS_BOT_TOKEN: str(),
+    NOTIFICATIONS_BOT_USERNAME: str(),
 
     HEALTH_CHAT_ID: str(),
 });
@@ -27,8 +29,9 @@ export const logger: Logger = createLogger({
     minLogLevel: env.LOG_LEVEL,
     isLocal: env.NODE_ENV === 'development',
     redactValues: [
-        env.BOT_TOKEN,
-        env.BOT_API_AUTH_TOKEN,
+        env.NOTIFICATIONS_BOT_TOKEN,
+        env.ADMIN_BOT_API_AUTH_TOKEN,
+        env.ADMIN_BOT_TOKEN,
         env.OWNER_TG_API_ID.toString(),
         env.OWNER_TG_API_HASH,
         env.OWNER_TG_STRING_SESSION,
