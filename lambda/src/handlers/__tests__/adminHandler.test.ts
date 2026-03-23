@@ -189,14 +189,13 @@ describe('adminHandler', () => {
             expect(handleDeleteArtist).toHaveBeenCalledWith('Queen');
         });
 
-        it('returns 501 and notifies admin', async () => {
+        it('returns 200 and notifies admin on success', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/delete', artistName: 'Queen' });
-            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
             const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             const res = await adminHandler(event, {});
 
-            expect(res).toEqual({ statusCode: 501, body: 'Not implemented' });
+            expect(res).toEqual({ statusCode: 200, body: 'Successfully deleted artist' });
             expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
     });

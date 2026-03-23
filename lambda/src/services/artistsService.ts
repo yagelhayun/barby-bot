@@ -66,6 +66,30 @@ const tryGetId = async (getter: () => Promise<string>): Promise<string | null> =
     }
 };
 
+type DeleteState = { shouldDeleteFromTelegram: boolean; shouldDeleteFromDb: boolean };
+
+export const alignTelegramAndDBStatesForDeletion = async (artistName: string): Promise<DeleteState> => {
+    const [telegramId, dbId]: [string | null, string | null] = await Promise.all([
+        tryGetId(() => getGroupChatIdByArtistNameFromTelegram(artistName)),
+        tryGetId(() => getGroupChatIdByArtistName(artistName)),
+    ]);
+
+    if (!telegramId && !dbId) {
+        logger.info('Artist not found anywhere, nothing to delete');
+        throw new GroupNotFoundInDatabaseError(artistName);
+    }
+
+    if (telegramId && dbId) {
+        logger.info('Artist found in both Telegram and DB, deleting from both');
+    } else if (telegramId) {
+        logger.warn('Artist found in Telegram but not in DB, deleting from Telegram only');
+    } else {
+        logger.warn('Artist found in DB but not in Telegram, deleting from DB only');
+    }
+
+    return { shouldDeleteFromTelegram: !!telegramId, shouldDeleteFromDb: !!dbId };
+};
+
 export const alignTelegramAndDBStates = async (artistName: string): Promise<boolean> => {
     const [telegramId, dbId]: [string | null, string | null] = await Promise.all([
         tryGetId(() => getGroupChatIdByArtistNameFromTelegram(artistName)),

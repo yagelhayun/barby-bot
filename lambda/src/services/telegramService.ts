@@ -3,6 +3,7 @@ import { env, logger } from '../utils/config';
 import { getTelegramClient } from '../clients/adminTelegramClient';
 import {
     TelegramGroupCreationError,
+    TelegramGroupDeletionError,
     GroupNotFoundInTelegramError,
 } from '../utils/errors';
 
@@ -40,4 +41,28 @@ export const getGroupChatIdByArtistName = async (artistName: string): Promise<st
 
     logger.debug('Telegram group found', { groupId: group.id.toString() });
     return group.id.toString();
+};
+
+export const deleteGroup = async (artistName: string): Promise<void> => {
+    const client = await getTelegramClient();
+
+    const groupName: string = getGroupName(artistName);
+    const dialogs = await client.getDialogs();
+    const group = dialogs.find(({ title }) => title === groupName);
+
+    if (!group?.id) {
+        logger.info('Telegram group not found, skipping deletion');
+        return;
+    }
+
+    // Dialog.id is the marked peer-id (-chatId for basic groups).
+    // messages.DeleteChat expects the raw positive chatId from the entity.
+    const chatId = (group.entity as Api.Chat).id;
+
+    try {
+        await client.invoke(new Api.messages.DeleteChat({ chatId }));
+        logger.info('Telegram group deleted');
+    } catch (err) {
+        throw new TelegramGroupDeletionError(artistName, err instanceof Error ? err : new Error(String(err)));
+    }
 };

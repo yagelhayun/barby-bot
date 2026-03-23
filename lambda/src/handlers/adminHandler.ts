@@ -11,7 +11,9 @@ import { sendAdminMessage } from '../clients/telegramClient';
 import {
     CommandValidationError,
     TelegramGroupCreationError,
+    TelegramGroupDeletionError,
     FailedToAddArtistError,
+    GroupNotFoundInDatabaseError,
     UnableToSendBotMessageError,
 } from '../utils/errors';
 import type {
@@ -57,8 +59,8 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
             }
             case commands.DELETE: {
                 await handleDeleteArtist(artistName);
-                await sendAdminMessage(`הפקודה /delete עדיין לא זמינה`, chat.id);
-                return buildHandlerResponse(501, 'Not implemented');
+                await sendAdminMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
+                return buildHandlerResponse(200, 'Successfully deleted artist');
             }
         }
     } catch (error) {
@@ -68,9 +70,15 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         if (error instanceof CommandValidationError) {
             response = buildHandlerResponse(400, 'Unsupported command');
             userMessage = `פקודה לא חוקית`;
+        } else if (error instanceof GroupNotFoundInDatabaseError) {
+            response = buildHandlerResponse(404, 'Artist not found');
+            userMessage = `האמן לא נמצא במסד הנתונים`;
         } else if (error instanceof TelegramGroupCreationError) {
             response = buildHandlerResponse(500, 'Failed to create artist group on Telegram');
             userMessage = `שגיאה ביצירת הקבוצה בטלגרם`;
+        } else if (error instanceof TelegramGroupDeletionError) {
+            response = buildHandlerResponse(500, 'Failed to delete artist group on Telegram');
+            userMessage = `שגיאה במחיקת הקבוצה בטלגרם`;
         } else if (error instanceof FailedToAddArtistError) {
             response = buildHandlerResponse(500, 'Failed to add artist to database');
             userMessage = `שגיאה בהוספת האמן למסד הנתונים`;

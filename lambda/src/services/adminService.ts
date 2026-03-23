@@ -4,8 +4,8 @@ import {
     UnsupportedCommandError,
 } from '../utils/errors';
 import { logger } from '../utils/config';
-import { addArtist, alignTelegramAndDBStates } from '../services/artistsService';
-import { createGroup, getGroupChatIdByArtistName } from '../services/telegramService';
+import { addArtist, alignTelegramAndDBStates, alignTelegramAndDBStatesForDeletion, deleteArtist } from '../services/artistsService';
+import { createGroup, deleteGroup, getGroupChatIdByArtistName } from '../services/telegramService';
 import type { TelegramEntity, ParsedCommand } from '../types';
 
 export enum commands {
@@ -46,6 +46,14 @@ export const handleCreateArtist = async (artistName: string): Promise<void> => {
     logger.info('Artist added to database');
 };
 
-export const handleDeleteArtist = async (_artistName: string): Promise<void> => {
-    throw new Error('Not implemented');
+export const handleDeleteArtist = async (artistName: string): Promise<void> => {
+    const { shouldDeleteFromTelegram, shouldDeleteFromDb } = await alignTelegramAndDBStatesForDeletion(artistName);
+
+    if (shouldDeleteFromTelegram) {
+        await deleteGroup(artistName);
+    }
+
+    if (shouldDeleteFromDb) {
+        await deleteArtist(artistName);
+    }
 };
