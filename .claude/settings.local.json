@@ -7,7 +7,8 @@
       "Bash(xargs grep:*)",
       "Bash(grep -rn \"from ''.*\\\\.js''\" f:/GitRepos/barby-bot/lambda/src/ --include=\"*.ts\" -l)",
       "Bash(sort -t: -k3)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(find /f/GitRepos/barby-bot/lambda/node_modules/@yagelhayun/logger -type f \\\\\\(-name *.d.ts -o -name *.ts -o -name *.json \\\\\\))"
     ]
   }
 }

@@ -1,10 +1,10 @@
 import { env, logger } from '../utils/config';
 import { UnableToSendBotMessageError } from '../utils/errors';
 
-const sendMessage = (token: string) => async (message: string, chatId: string | number): Promise<void> => {
+export const sendMessage = async (message: string, chatId: string | number): Promise<void> => {
     logger.info('Sending Telegram message', { chatId });
 
-    const requestUrl = `https://api.telegram.org/bot${token}/sendMessage`;
+    const requestUrl = `https://api.telegram.org/bot${env.BOT_TOKEN}/sendMessage`;
     const requestOptions: RequestInit = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -23,6 +23,3 @@ const sendMessage = (token: string) => async (message: string, chatId: string | 
 
     logger.debug('Telegram message sent', { chatId });
 };
-
-export const sendNotificationMessage = sendMessage(env.NOTIFICATIONS_BOT_TOKEN);
-export const sendAdminMessage = sendMessage(env.ADMIN_BOT_TOKEN);

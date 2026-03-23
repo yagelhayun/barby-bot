@@ -15,7 +15,7 @@ export const createGroup = async (artistName: string): Promise<void> => {
     try {
         await client.invoke(
             new Api.messages.CreateChat({
-                users: [env.NOTIFICATIONS_BOT_USERNAME],
+                users: [env.BOT_USERNAME],
                 title: getGroupName(artistName),
             }),
         );

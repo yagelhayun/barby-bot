@@ -39,17 +39,17 @@ const event: ScheduledEvent | HttpEvent =
               routeKey: 'POST /telegram',
               headers: {
                   'content-type': 'application/json',
-                  'x-telegram-bot-api-secret-token': env.ADMIN_BOT_SECRET_TOKEN,
+                  'x-telegram-bot-api-secret-token': env.BOT_AUTH_SECRET_TOKEN,
               },
               body: JSON.stringify({
                   update_id: 1,
                   message: {
                       message_id: 1,
-                      from: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), is_bot: false },
-                      chat: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), type: 'private' },
+                      from: { id: parseInt(env.OWNER_TG_USER_ID, 10), is_bot: false },
+                      chat: { id: parseInt(env.OWNER_TG_USER_ID, 10), type: 'private' },
                       date: Math.floor(Date.now() / 1000),
                       entities: [{ offset: 0, length: 7, type: 'bot_command' }],
-                      text: '/delete ליילי',
+                      text: '/create ליילי',
                   } satisfies TelegramMessage,
               }),
               isBase64Encoded: false,

@@ -13,46 +13,37 @@ variable "LOG_LEVEL" {
     default = "debug"
 }
 
-variable "NOTIFICATIONS_BOT_TOKEN" {
+variable "BOT_USERNAME" {
+    type = string
+}
+
+variable "BOT_TOKEN" {
     type = string
     sensitive = true
 }
 
-variable "NOTIFICATIONS_BOT_USERNAME" {
-    type = string
-}
-
-variable "ADMIN_BOT_USERNAME" {
-    type = string
-}
-
-variable "ADMIN_BOT_TOKEN" {
-    type = string
-    sensitive = true
-}
-
-variable "ADMIN_BOT_SECRET_TOKEN" {
+variable "BOT_AUTH_SECRET_TOKEN" {
     type = string
     sensitive = true
     description = "Secret token for Telegram Bot API webhook verification"
 }
 
-variable "ADMIN_BOT_OWNER_ID" {
+variable "OWNER_TG_USER_ID" {
     type = string
     description = "Telegram User ID of Yagel Hayun"
 }
 
-variable "ADMIN_TG_API_ID" {
+variable "OWNER_TG_API_ID" {
   type = number
   sensitive = true
 }
 
-variable "ADMIN_TG_API_HASH" {
+variable "OWNER_TG_API_HASH" {
   type = string
   sensitive = true
 }
 
-variable "ADMIN_TG_STRING_SESSION" {
+variable "OWNER_TG_STRING_SESSION" {
   type = string
   sensitive = true
 }
