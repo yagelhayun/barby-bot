@@ -12,3 +12,12 @@ export class FailedToAddArtistError extends DatabaseError {
         this.artist = artist;
     }
 }
+
+export class DatabaseConnectionError extends DatabaseError {
+    public override readonly cause: Error;
+
+    constructor(cause: Error) {
+        super('Database connection failed');
+        this.cause = cause;
+    }
+}

@@ -4,7 +4,7 @@ import { buildHandlerResponse } from '../utils/helpers';
 import { getArtistShows } from '../services/showsService';
 import { getArtists } from '../services/artistsService';
 import { sendNotificationMessage } from '../clients/telegramClient';
-import { NoShowsError } from '../utils/errors';
+import { DatabaseConnectionError, NoShowsError } from '../utils/errors';
 import type { HandlerResponse, ArtistMap, ArtistShows } from '../types';
 
 const isRejected = (result: PromiseSettledResult<unknown>): result is PromiseRejectedResult =>
@@ -53,6 +53,9 @@ export const notificationsHandler = async (_event: unknown, _context: unknown): 
                 logger.error('Failed to send health check message', { error: sendError });
                 return buildHandlerResponse(502, 'Telegram API error');
             }
+        } else if (error instanceof DatabaseConnectionError) {
+            logger.error('Database connection failed in notifications handler', { error });
+            return buildHandlerResponse(503, 'Database unavailable');
         } else {
             logger.error('Unexpected error in notifications handler', { error });
             return buildHandlerResponse(500, 'An unexpected error occurred');

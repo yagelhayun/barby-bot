@@ -10,6 +10,7 @@ import {
 import { sendAdminMessage } from '../clients/telegramClient';
 import {
     CommandValidationError,
+    DatabaseConnectionError,
     TelegramGroupCreationError,
     TelegramGroupDeletionError,
     FailedToAddArtistError,
@@ -70,6 +71,9 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         if (error instanceof CommandValidationError) {
             response = buildHandlerResponse(400, 'Unsupported command');
             userMessage = `פקודה לא חוקית`;
+        } else if (error instanceof DatabaseConnectionError) {
+            response = buildHandlerResponse(503, 'Database unavailable');
+            userMessage = `שגיאה בהתחברות למסד הנתונים, נסה שוב`;
         } else if (error instanceof GroupNotFoundInDatabaseError) {
             response = buildHandlerResponse(404, 'Artist not found');
             userMessage = `האמן לא נמצא במסד הנתונים`;
