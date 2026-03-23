@@ -62,7 +62,7 @@ function buildEvent(overrides: {
 
 describe('adminHandler', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        vi.resetAllMocks();
     });
 
     describe('authorization', () => {
@@ -150,55 +150,54 @@ describe('adminHandler', () => {
     });
 
     describe('/create command', () => {
-        it('calls handleCreateArtist with the parsed artist name and chat id', async () => {
+        it('calls handleCreateArtist with the parsed artist name', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
-            (handleCreateArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
 
             await adminHandler(buildEvent(), {});
 
-            expect(handleCreateArtist).toHaveBeenCalledWith('Queen', 12345);
+            expect(handleCreateArtist).toHaveBeenCalledWith('Queen');
         });
 
-        it('returns the response from handleCreateArtist', async () => {
+        it('returns 200 and notifies admin on success', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
-            (handleCreateArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
 
             const res = await adminHandler(buildEvent(), {});
 
             expect(res).toEqual({ statusCode: 200, body: 'Successfully added artist' });
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
 
         it('works with Hebrew artist names', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'רון חיון' });
-            (handleCreateArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Successfully added artist' });
             const event = buildEvent({ message: { text: '/create רון חיון', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             const res = await adminHandler(event, {});
 
-            expect(handleCreateArtist).toHaveBeenCalledWith('רון חיון', 12345);
+            expect(handleCreateArtist).toHaveBeenCalledWith('רון חיון');
             expect(res?.statusCode).toBe(200);
         });
     });
 
     describe('/delete command', () => {
-        it('calls handleDeleteArtist with the parsed artist name and chat id', async () => {
+        it('calls handleDeleteArtist with the parsed artist name', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/delete', artistName: 'Queen' });
-            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
+            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
             const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             await adminHandler(event, {});
 
-            expect(handleDeleteArtist).toHaveBeenCalledWith('Queen', 12345);
+            expect(handleDeleteArtist).toHaveBeenCalledWith('Queen');
         });
 
-        it('returns the response from handleDeleteArtist', async () => {
+        it('returns 501 and notifies admin', async () => {
             (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/delete', artistName: 'Queen' });
-            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 501, body: 'Not implemented' });
+            (handleDeleteArtist as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
             const event = buildEvent({ message: { text: '/delete Queen', entities: [{ type: 'bot_command' }], chat: { id: 12345, type: 'private' }, message_id: 1, date: 1, from: { id: 12345 } } });
 
             const res = await adminHandler(event, {});
 
             expect(res).toEqual({ statusCode: 501, body: 'Not implemented' });
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
         });
     });
 
