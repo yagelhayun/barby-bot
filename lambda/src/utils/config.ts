@@ -29,8 +29,8 @@ export const logger: Logger = createLogger({
     redactValues: [
         env.BOT_TOKEN,
         env.BOT_API_AUTH_TOKEN,
-        env.OWNER_TG_API_HASH,
         env.OWNER_TG_API_ID.toString(),
+        env.OWNER_TG_API_HASH,
         env.OWNER_TG_STRING_SESSION,
         env.DATABASE_PASSWORD
     ]
