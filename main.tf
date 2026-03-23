@@ -58,7 +58,7 @@ data "archive_file" "lambda_zip" {
 resource "aws_lambda_function" "barby_bot" {
   function_name = "barby_bot"
   filename      = data.archive_file.lambda_zip.output_path
-  handler       = "index.main"
+  handler       = "dist/index.main"
   runtime       = "nodejs24.x"
 
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
