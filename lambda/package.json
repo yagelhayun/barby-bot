@@ -8,15 +8,15 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:live:noti": "npx tsx scripts/live.test.ts notifications",
-    "test:live:admin": "npx tsx scripts/live.test.ts admin",
+    "test:noti": "npx tsx scripts/live.test.ts notifications",
+    "test:admin": "npx tsx scripts/live.test.ts admin",
     "migrate": "supabase db push --project-ref barby-bot"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@yagelhayun/logger": "^0.1.0-alpha.8",
+    "@yagelhayun/logger": "^0.1.0-alpha.9",
     "dotenv": "^17.2.3",
     "envalid": "^8.1.1",
     "postgres": "^3.4.8",

@@ -1,3 +1,4 @@
+import { setLogMetadata } from '@yagelhayun/logger/server';
 import { env, logger } from '../utils/config';
 import { buildHandlerResponse } from '../utils/helpers';
 import {
@@ -13,7 +14,7 @@ import {
     FailedToAddArtistError,
     UnableToSendBotMessageError,
 } from '../utils/errors';
-import type { 
+import type {
     HandlerResponse,
     HttpEvent,
     TelegramWebhookBody,
@@ -26,23 +27,27 @@ import type {
  * This return value is still useful for unit tests and local invocation.
  */
 export const adminHandler = async (event: HttpEvent, _context: unknown): Promise<HandlerResponse | undefined> => {
-    logger.debug('adminHandler event:', event);
+    logger.debug('Admin handler event received', { event });
 
     const body: TelegramWebhookBody = JSON.parse(event.body);
     const { message }: TelegramWebhookBody = body;
     const { chat, text, entities } = message;
 
+    setLogMetadata('chatId', chat.id);
+
     if (
         event.headers['x-telegram-bot-api-secret-token'] !== env.ADMIN_BOT_SECRET_TOKEN ||
         chat?.id !== parseInt(env.ADMIN_BOT_OWNER_ID, 10)
     ) {
-        logger.error('Unauthorized access attempt detected');
+        logger.error('Unauthorized access attempt');
         return buildHandlerResponse(401, 'Unauthorized');
     }
 
     try {
         const { command, artistName }: ParsedCommand = parseCommand(text, entities);
-        logger.debug(`Parsed artist name: "${artistName}"`);
+        logger.debug('Command parsed', { command, artistName });
+        setLogMetadata('command', command);
+        setLogMetadata('artistName', artistName);
 
         switch (command) {
             case commands.CREATE: {
@@ -53,7 +58,7 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
             case commands.DELETE: {
                 await handleDeleteArtist(artistName);
                 await sendAdminMessage(`הפקודה /delete עדיין לא זמינה`, chat.id);
-                return buildHandlerResponse(200, 'Not implemented');
+                return buildHandlerResponse(501, 'Not implemented');
             }
         }
     } catch (error) {

@@ -49,7 +49,7 @@ const event: ScheduledEvent | HttpEvent =
                       chat: { id: parseInt(env.ADMIN_BOT_OWNER_ID, 10), type: 'private' },
                       date: Math.floor(Date.now() / 1000),
                       entities: [{ offset: 0, length: 7, type: 'bot_command' }],
-                      text: '/create ליילי',
+                      text: '/delete ליילי',
                   } satisfies TelegramMessage,
               }),
               isBase64Encoded: false,

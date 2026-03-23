@@ -19,7 +19,7 @@ export const createGroup = async (artistName: string): Promise<void> => {
             }),
         );
 
-        logger.info('Created group on Telegram successfully');
+        logger.info('Telegram group created successfully');
     } catch (err) {
         throw new TelegramGroupCreationError(artistName, err instanceof Error ? err : new Error(String(err)));
     }
@@ -34,10 +34,10 @@ export const getGroupChatIdByArtistName = async (artistName: string): Promise<st
     const group = dialogs.find(({ title }) => title === groupName);
 
     if (!group?.id) {
-        logger.error(`Group with name "${groupName}" not found`);
+        logger.error('Telegram group not found', { groupName });
         throw new GroupNotFoundInTelegramError(groupName);
     }
 
-    logger.debug('Found group ID', group.id);
+    logger.debug('Telegram group found', { groupId: group.id.toString() });
     return group.id.toString();
 };

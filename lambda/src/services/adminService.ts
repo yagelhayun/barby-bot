@@ -39,11 +39,11 @@ export const handleCreateArtist = async (artistName: string): Promise<void> => {
     if (!actionNeeded) return;
 
     await createGroup(artistName);
-    logger.info('Created Telegram group with the notifications bot');
+    logger.info('Telegram group created');
     const groupChatId: string = await getGroupChatIdByArtistName(artistName);
 
     await addArtist(artistName, groupChatId);
-    logger.info('Artist added to the database');
+    logger.info('Artist added to database');
 };
 
 export const handleDeleteArtist = async (_artistName: string): Promise<void> => {

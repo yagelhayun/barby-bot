@@ -5,7 +5,7 @@ import type { Show, BarbyApiResponse } from '../types';
 export const BARBY_URL: string = 'https://barby.co.il';
 
 export const getShows = async (): Promise<Show[]> => {
-    logger.info(`Fetching shows from ${BARBY_URL}`);
+    logger.info('Fetching shows from Barby API');
 
     const requestUrl: string = `${BARBY_URL}/api/shows/find`;
     const requestOptions: RequestInit = {
@@ -17,7 +17,7 @@ export const getShows = async (): Promise<Show[]> => {
         },
     };
 
-    logger.debug(`Fetching URL '${requestUrl}' with options`, { requestOptions });
+    logger.debug('Sending request to Barby API', { url: requestUrl });
     const res: Response = await fetch(requestUrl, requestOptions);
 
     if (!res.ok) {
@@ -25,7 +25,8 @@ export const getShows = async (): Promise<Show[]> => {
     }
 
     const data: BarbyApiResponse = await res.json();
-    logger.info('Received shows data');
+    const shows: Show[] = data?.returnShow?.show ?? [];
+    logger.info(`Fetched ${shows.length} shows`);
 
-    return data?.returnShow?.show ?? [];
+    return shows;
 };

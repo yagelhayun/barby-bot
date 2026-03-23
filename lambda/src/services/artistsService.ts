@@ -46,7 +46,7 @@ export const deleteArtist = async (name: string): Promise<void> => {
         throw new GroupNotFoundInDatabaseError(name);
     }
 
-    logger.info(`Deleted artist "${name}" from database`);
+    logger.info('Artist deleted from database');
 };
 
 export const updateArtistChatId = async (name: string, chatId: string): Promise<void> => {
@@ -73,25 +73,25 @@ export const alignTelegramAndDBStates = async (artistName: string): Promise<bool
     ]);
 
     if (!telegramId && !dbId) {
-        logger.info(`Artist "${artistName}" not found anywhere. Proceeding with creation.`);
+        logger.info('Artist not found anywhere, proceeding with creation');
         return true;
     }
 
     if (telegramId && dbId) {
         if (dbId !== telegramId) {
-            logger.info(`Chat ID mismatch for "${artistName}". Syncing DB with Telegram.`);
+            logger.info('Chat ID mismatch, syncing DB with Telegram', { dbId, telegramId });
             await updateArtistChatId(artistName, telegramId);
         } else {
-            logger.info(`Artist "${artistName}" already in sync. No action needed.`);
+            logger.info('Artist already in sync, no action needed');
         }
         return false;
     }
 
     if (!dbId && telegramId) {
-        logger.info(`Artist "${artistName}" found in Telegram but not in DB. Adding to DB.`);
+        logger.info('Artist found in Telegram but not in DB, adding to DB');
         await addArtist(artistName, telegramId);
     } else {
-        logger.info(`Artist "${artistName}" found in DB but not in Telegram. Removing from DB.`);
+        logger.info('Artist found in DB but not in Telegram, removing from DB');
         await deleteArtist(artistName);
     }
 
