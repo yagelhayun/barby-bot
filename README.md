@@ -48,6 +48,8 @@ terraform apply
 
 Open this in a browser: https://api.telegram.org/bot<BOT_TOKEN>/getUpdates
 
-### TODO
+## How to set a webhook with auth token
 
-add tests for both notifications and admin instead of whats happening RN in in index file (lines 19-32)
+curl --location 'https://api.telegram.org/bot<BOT_TOKEN>/setWebhook?secret_token=<AUTH_TOKEN>' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'url=<API_URL>'

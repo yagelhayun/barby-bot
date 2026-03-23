@@ -22,7 +22,7 @@ variable "BOT_TOKEN" {
     sensitive = true
 }
 
-variable "BOT_AUTH_SECRET_TOKEN" {
+variable "BOT_API_AUTH_TOKEN" {
     type = string
     sensitive = true
     description = "Secret token for Telegram Bot API webhook verification"

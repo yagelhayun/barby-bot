@@ -39,7 +39,7 @@ const event: ScheduledEvent | HttpEvent =
               routeKey: 'POST /telegram',
               headers: {
                   'content-type': 'application/json',
-                  'x-telegram-bot-api-secret-token': env.BOT_AUTH_SECRET_TOKEN,
+                  'x-telegram-bot-api-secret-token': env.BOT_API_AUTH_TOKEN,
               },
               body: JSON.stringify({
                   update_id: 1,

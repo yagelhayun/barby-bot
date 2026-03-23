@@ -39,7 +39,7 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
     setLogMetadata('chatId', chat.id);
 
     if (
-        event.headers['x-telegram-bot-api-secret-token'] !== env.BOT_AUTH_SECRET_TOKEN ||
+        event.headers['x-telegram-bot-api-secret-token'] !== env.BOT_API_AUTH_TOKEN ||
         chat?.id !== parseInt(env.OWNER_TG_USER_ID, 10)
     ) {
         logger.error('Unauthorized access attempt');

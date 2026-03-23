@@ -18,7 +18,7 @@ export const env = cleanEnv(process.env, {
 
     BOT_TOKEN: str(),
     BOT_USERNAME: str(),
-    BOT_AUTH_SECRET_TOKEN: str(),
+    BOT_API_AUTH_TOKEN: str(),
 
     HEALTH_CHAT_ID: str(),
 });
@@ -28,7 +28,7 @@ export const logger: Logger = createLogger({
     isLocal: env.NODE_ENV === 'development',
     redactValues: [
         env.BOT_TOKEN,
-        env.BOT_AUTH_SECRET_TOKEN,
+        env.BOT_API_AUTH_TOKEN,
         env.OWNER_TG_API_HASH,
         env.OWNER_TG_API_ID.toString(),
         env.OWNER_TG_STRING_SESSION,
