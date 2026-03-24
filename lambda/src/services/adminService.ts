@@ -6,7 +6,7 @@ import {
 } from '../utils/errors';
 import { logger } from '../utils/config';
 import { addArtist, alignTelegramAndDBStatesForCreation, alignTelegramAndDBStatesForDeletion, deleteArtist } from '../services/artistsService';
-import { createGroup, deleteGroup, getGroupChatIdByArtistName } from '../services/telegramService';
+import { createGroup, deleteGroup } from '../services/telegramService';
 import { Command } from '../types';
 import type { TelegramEntity, ParsedCommand } from '../types';
 
@@ -39,9 +39,7 @@ export const handleCreateArtist = async (artistName: string): Promise<void> => {
 
     if (!actionNeeded) throw new ArtistAlreadyExistsError(artistName);
 
-    await createGroup(artistName);
-    logger.info('Telegram group created');
-    const groupChatId: string = await getGroupChatIdByArtistName(artistName);
+    const groupChatId: string = await createGroup(artistName);
 
     await addArtist(artistName, groupChatId);
     logger.info('Artist added to database');

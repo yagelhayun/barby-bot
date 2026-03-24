@@ -9,18 +9,27 @@ import {
 
 const getGroupName = (artistName: string): string => `${artistName} בארבי`;
 
-export const createGroup = async (artistName: string): Promise<void> => {
+export const createGroup = async (artistName: string): Promise<string> => {
     const client = await getTelegramClient();
 
     try {
-        await client.invoke(
+        const result = await client.invoke(
             new Api.messages.CreateChat({
                 users: [env.NOTIFICATIONS_BOT_USERNAME],
                 title: getGroupName(artistName),
             }),
         );
 
-        logger.info('Telegram group created successfully');
+        // TypeUpdates is a union — only Api.Updates and UpdatesCombined carry chats[].
+        // CreateChat always returns one of these, but we guard defensively.
+        if (!('chats' in result.updates) || !Array.isArray(result.updates.chats) || result.updates.chats.length === 0) {
+            throw new Error(`Unexpected updates shape from CreateChat: ${result.updates.className}`);
+        }
+
+        // dialog.id for basic groups is the marked peer ID (-chat.id).
+        const chatId = (result.updates.chats[0] as Api.Chat).id.negate().toString();
+        logger.info('Telegram group created', { chatId });
+        return chatId;
     } catch (err) {
         throw new TelegramGroupCreationError(artistName, err instanceof Error ? err : new Error(String(err)));
     }
