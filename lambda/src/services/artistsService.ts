@@ -53,7 +53,7 @@ export const updateArtistChatId = async (name: string, chatId: string): Promise<
     const result = await updateArtistChatIdInDB(name, chatId);
 
     if (result.count === 0) {
-        throw new GroupNotFoundInDatabaseError(name); // TODO: not sure if this is the right error to throw here, since the artist does exist but the update failed. Maybe a new error type is needed?
+        throw new GroupNotFoundInDatabaseError(name);
     }
 };
 
