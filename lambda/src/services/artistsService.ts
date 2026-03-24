@@ -90,7 +90,7 @@ export const alignTelegramAndDBStatesForDeletion = async (artistName: string): P
     return { shouldDeleteFromTelegram: !!telegramId, shouldDeleteFromDb: !!dbId };
 };
 
-export const alignTelegramAndDBStates = async (artistName: string): Promise<boolean> => {
+export const alignTelegramAndDBStatesForCreation = async (artistName: string): Promise<boolean> => {
     const [telegramId, dbId]: [string | null, string | null] = await Promise.all([
         tryGetId(() => getGroupChatIdByArtistNameFromTelegram(artistName)),
         tryGetId(() => getGroupChatIdByArtistName(artistName)),

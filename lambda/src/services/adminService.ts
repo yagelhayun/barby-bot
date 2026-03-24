@@ -4,7 +4,7 @@ import {
     UnsupportedCommandError,
 } from '../utils/errors';
 import { logger } from '../utils/config';
-import { addArtist, alignTelegramAndDBStates, alignTelegramAndDBStatesForDeletion, deleteArtist } from '../services/artistsService';
+import { addArtist, alignTelegramAndDBStatesForCreation, alignTelegramAndDBStatesForDeletion, deleteArtist } from '../services/artistsService';
 import { createGroup, deleteGroup, getGroupChatIdByArtistName } from '../services/telegramService';
 import { Command } from '../types';
 import type { TelegramEntity, ParsedCommand } from '../types';
@@ -34,7 +34,7 @@ export const parseCommand = (text: string | undefined, entities: TelegramEntity[
 };
 
 export const handleCreateArtist = async (artistName: string): Promise<void> => {
-    const actionNeeded: boolean = await alignTelegramAndDBStates(artistName);
+    const actionNeeded: boolean = await alignTelegramAndDBStatesForCreation(artistName);
 
     if (!actionNeeded) return;
 

@@ -35,7 +35,7 @@ export const getGroupChatIdByArtistName = async (artistName: string): Promise<st
     const group = dialogs.find(({ title }) => title === groupName);
 
     if (!group?.id) {
-        logger.error('Telegram group not found', { groupName }); // TODO: rethink about it
+        logger.error('Telegram group not found', { groupName });
         throw new GroupNotFoundInTelegramError(groupName);
     }
 

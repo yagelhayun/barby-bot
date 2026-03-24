@@ -199,7 +199,7 @@ describe('adminHandler', () => {
 
             await adminHandler(buildEvent(), {});
 
-            expect(sendAdminMessage).toHaveBeenCalledWith(expect.stringContaining('200'), 12345);
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.stringMatching('שליחת עידכוני הופעות הושלמה בהצלחה'), 12345);
         });
 
         it('returns notifications result even when it is a partial failure', async () => {
