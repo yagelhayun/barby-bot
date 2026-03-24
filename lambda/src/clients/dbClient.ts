@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import { env } from '../utils/config';
+import { env, logger } from '../utils/config';
 import { DatabaseConnectionError } from '../utils/errors';
 
 let _sql: postgres.Sql | null = null;
@@ -18,7 +18,10 @@ const createSql = (): postgres.Sql =>
     });
 
 export const getDb = (): postgres.Sql => {
-    if (!_sql) _sql = createSql();
+    if (!_sql) {
+        logger.debug('Initializing database connection');
+        _sql = createSql();
+    }
     return _sql;
 };
 

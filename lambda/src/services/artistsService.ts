@@ -14,6 +14,7 @@ import type { ArtistMap } from '../types';
 
 export const getArtists = async (): Promise<ArtistMap> => {
     const artists = await getArtistsFromDB();
+    logger.debug('Fetched artists from database', { count: artists.length });
 
     return artists.reduce<ArtistMap>((acc, { name, chat_id }) => {
         acc[name] = chat_id;
@@ -22,20 +23,25 @@ export const getArtists = async (): Promise<ArtistMap> => {
 };
 
 export const addArtist = async (name: string, chatId: string): Promise<void> => {
+    logger.debug('Adding artist to database', { name, chatId });
     const result = await addArtistToDB(name, chatId);
 
     if (result.count === 0) {
         throw new FailedToAddArtistError(name);
     }
+
+    logger.debug('Artist added to database', { name });
 };
 
 export const getGroupChatIdByArtistName = async (name: string): Promise<string> => {
+    logger.debug('Looking up artist chat ID in database', { name });
     const result = await getGroupChatIdByArtistNameFromDB(name);
 
     if (result.length === 0) {
         throw new GroupNotFoundInDatabaseError(name);
     }
 
+    logger.debug('Found artist chat ID in database', { name, chatId: result[0].chat_id });
     return result[0].chat_id;
 };
 
@@ -50,11 +56,14 @@ export const deleteArtist = async (name: string): Promise<void> => {
 };
 
 export const updateArtistChatId = async (name: string, chatId: string): Promise<void> => {
+    logger.debug('Updating artist chat ID in database', { name, chatId });
     const result = await updateArtistChatIdInDB(name, chatId);
 
     if (result.count === 0) {
         throw new GroupNotFoundInDatabaseError(name);
     }
+
+    logger.debug('Artist chat ID updated in database', { name });
 };
 
 const tryGetId = async (getter: () => Promise<string>): Promise<string | null> => {

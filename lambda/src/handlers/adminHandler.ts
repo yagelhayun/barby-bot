@@ -16,6 +16,7 @@ import {
     TelegramGroupDeletionError,
     FailedToAddArtistError,
     GroupNotFoundInDatabaseError,
+    GroupNotFoundInTelegramError,
     UnableToSendBotMessageError,
     ArtistAlreadyExistsError,
 } from '../utils/errors';
@@ -94,6 +95,9 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         } else if (error instanceof GroupNotFoundInDatabaseError) {
             response = buildHandlerResponse(404, 'Artist not found');
             userMessage = `האמן לא נמצא במסד הנתונים`;
+        } else if (error instanceof GroupNotFoundInTelegramError) {
+            response = buildHandlerResponse(404, 'Artist group not found on Telegram');
+            userMessage = `קבוצת הטלגרם של האמן לא נמצאה`;
         } else if (error instanceof TelegramGroupCreationError) {
             response = buildHandlerResponse(500, 'Failed to create artist group on Telegram');
             userMessage = `שגיאה ביצירת הקבוצה בטלגרם`;

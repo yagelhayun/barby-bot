@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { randomUUID } from 'crypto';
 import { attachLogContext, setLogMetadata } from '@yagelhayun/logger/server';
 import { closeDb } from './clients/dbClient';
 import { logger } from './utils/config';
@@ -17,8 +18,10 @@ const logHandlerResult = (result: HandlerResponse | undefined): void => {
     }
 };
 
-const handleEvent = async (event: LambdaEvent, context: unknown): Promise<HandlerResponse | undefined> => {
+const handleEvent = async (event: LambdaEvent, context: unknown): Promise<HandlerResponse> => {
     try {
+        setLogMetadata('uuid', randomUUID());
+
         if ('source' in event && event.source === 'aws.events') {
             setLogMetadata('handler', 'notifications');
             logger.info('Notifications handler invoked');
@@ -31,7 +34,10 @@ const handleEvent = async (event: LambdaEvent, context: unknown): Promise<Handle
             logger.info('Admin handler invoked');
             const result: HandlerResponse = await adminHandler(event, context);
             logHandlerResult(result);
-            return buildHandlerResponse(200, 'Request processed');
+            return buildHandlerResponse(200, 'Admin Request processed');
+        } else {
+            logger.warn('Unknown event caught', { event });
+            return buildHandlerResponse(200, 'Nothing processed');
         }
     } finally {
         await closeDb();
