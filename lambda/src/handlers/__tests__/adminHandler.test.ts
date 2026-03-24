@@ -3,6 +3,7 @@ import {
     MissingBotCommandError,
     UnsupportedCommandError,
     MissingArtistNameError,
+    ArtistAlreadyExistsError,
 } from '../../utils/errors';
 
 vi.mock('../../services/adminService.js', () => ({
@@ -169,6 +170,16 @@ describe('adminHandler', () => {
 
             expect(res).toEqual({ statusCode: 200, body: 'Successfully added artist' });
             expect(sendAdminMessage).toHaveBeenCalledWith(expect.any(String), 12345);
+        });
+
+        it('returns 200 and notifies admin when artist already exists', async () => {
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/create', artistName: 'Queen' });
+            (handleCreateArtist as ReturnType<typeof vi.fn>).mockRejectedValue(new ArtistAlreadyExistsError('Queen'));
+
+            const res = await adminHandler(buildEvent(), {});
+
+            expect(res).toEqual({ statusCode: 200, body: 'Artist already exists' });
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.stringContaining('Queen'), 12345);
         });
 
         it('works with Hebrew artist names', async () => {

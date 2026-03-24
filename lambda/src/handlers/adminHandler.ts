@@ -17,6 +17,7 @@ import {
     FailedToAddArtistError,
     GroupNotFoundInDatabaseError,
     UnableToSendBotMessageError,
+    ArtistAlreadyExistsError,
 } from '../utils/errors';
 import type {
     HandlerResponse,
@@ -81,7 +82,10 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         let response: HandlerResponse;
         let userMessage: string;
 
-        if (error instanceof CommandValidationError) {
+        if (error instanceof ArtistAlreadyExistsError) {
+            response = buildHandlerResponse(200, 'Artist already exists');
+            userMessage = `האמן "${error.artistName}" כבר קיים ומסונכרן`;
+        } else if (error instanceof CommandValidationError) {
             response = buildHandlerResponse(400, 'Unsupported command');
             userMessage = `פקודה לא חוקית`;
         } else if (error instanceof DatabaseConnectionError) {

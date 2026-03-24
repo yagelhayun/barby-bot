@@ -2,6 +2,7 @@ import {
     MissingBotCommandError,
     MissingArtistNameError,
     UnsupportedCommandError,
+    ArtistAlreadyExistsError,
 } from '../utils/errors';
 import { logger } from '../utils/config';
 import { addArtist, alignTelegramAndDBStatesForCreation, alignTelegramAndDBStatesForDeletion, deleteArtist } from '../services/artistsService';
@@ -36,7 +37,7 @@ export const parseCommand = (text: string | undefined, entities: TelegramEntity[
 export const handleCreateArtist = async (artistName: string): Promise<void> => {
     const actionNeeded: boolean = await alignTelegramAndDBStatesForCreation(artistName);
 
-    if (!actionNeeded) return;
+    if (!actionNeeded) throw new ArtistAlreadyExistsError(artistName);
 
     await createGroup(artistName);
     logger.info('Telegram group created');
