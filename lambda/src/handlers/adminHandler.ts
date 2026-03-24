@@ -6,6 +6,7 @@ import {
     handleCreateArtist,
     handleDeleteArtist,
 } from '../services/adminService';
+import { notificationsHandler } from './notificationsHandler';
 import { Command } from '../types';
 import { sendAdminMessage } from '../clients/telegramClient';
 import {
@@ -53,21 +54,27 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
     }
 
     try {
-        const { command, artistName }: ParsedCommand = parseCommand(text, entities);
-        logger.debug('Command parsed', { command, artistName });
-        setLogMetadata('command', command);
-        setLogMetadata('artistName', artistName);
+        const parsed: ParsedCommand = parseCommand(text, entities);
+        logger.debug('Command parsed', { command: parsed.command });
+        setLogMetadata('command', parsed.command);
 
-        switch (command) {
+        switch (parsed.command) {
             case Command.CREATE: {
-                await handleCreateArtist(artistName);
-                await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, chat.id);
+                setLogMetadata('artistName', parsed.artistName);
+                await handleCreateArtist(parsed.artistName);
+                await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${parsed.artistName}" בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully added artist');
             }
             case Command.DELETE: {
-                await handleDeleteArtist(artistName);
-                await sendAdminMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
+                setLogMetadata('artistName', parsed.artistName);
+                await handleDeleteArtist(parsed.artistName);
+                await sendAdminMessage(`האמן "${parsed.artistName}" נמחק בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully deleted artist');
+            }
+            case Command.NOTIFY: {
+                const result = await notificationsHandler();
+                await sendAdminMessage(`שליחת עידכוני הופעות הושלמה בהצלחה`, chat.id);
+                return result;
             }
         }
     } catch (error) {

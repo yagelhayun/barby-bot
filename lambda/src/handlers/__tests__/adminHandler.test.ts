@@ -14,6 +14,9 @@ vi.mock('../../services/adminService.js', () => ({
 vi.mock('../../clients/telegramClient.js', () => ({
     sendAdminMessage: vi.fn(),
 }));
+vi.mock('../notificationsHandler.js', () => ({
+    notificationsHandler: vi.fn(),
+}));
 vi.mock('../../utils/config.js', () => ({
     env: {
         ADMIN_BOT_API_AUTH_TOKEN: 'test-secret',
@@ -25,6 +28,7 @@ vi.mock('../../utils/config.js', () => ({
 const { adminHandler } = await import('../adminHandler.js');
 const { parseCommand, handleCreateArtist, handleDeleteArtist } = await import('../../services/adminService.js');
 const { sendAdminMessage } = await import('../../clients/telegramClient.js');
+const { notificationsHandler } = await import('../notificationsHandler.js');
 
 function buildEvent(overrides: {
     message?: Partial<{
@@ -175,6 +179,36 @@ describe('adminHandler', () => {
 
             expect(handleCreateArtist).toHaveBeenCalledWith('רון חיון');
             expect(res?.statusCode).toBe(200);
+        });
+    });
+
+    describe('/notify command', () => {
+        it('calls notificationsHandler and returns its result', async () => {
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/notify' });
+            (notificationsHandler as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Notifications sent successfully' });
+
+            const res = await adminHandler(buildEvent(), {});
+
+            expect(notificationsHandler).toHaveBeenCalled();
+            expect(res).toEqual({ statusCode: 200, body: 'Notifications sent successfully' });
+        });
+
+        it('notifies admin with the result status code', async () => {
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/notify' });
+            (notificationsHandler as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 200, body: 'Notifications sent successfully' });
+
+            await adminHandler(buildEvent(), {});
+
+            expect(sendAdminMessage).toHaveBeenCalledWith(expect.stringContaining('200'), 12345);
+        });
+
+        it('returns notifications result even when it is a partial failure', async () => {
+            (parseCommand as ReturnType<typeof vi.fn>).mockReturnValue({ command: '/notify' });
+            (notificationsHandler as ReturnType<typeof vi.fn>).mockResolvedValue({ statusCode: 502, body: 'All notifications failed to send' });
+
+            const res = await adminHandler(buildEvent(), {});
+
+            expect(res).toEqual({ statusCode: 502, body: 'All notifications failed to send' });
         });
     });
 

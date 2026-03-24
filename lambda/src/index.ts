@@ -22,7 +22,7 @@ const handleEvent = async (event: LambdaEvent, context: unknown): Promise<Handle
         if ('source' in event && event.source === 'aws.events') {
             setLogMetadata('handler', 'notifications');
             logger.info('Notifications handler invoked');
-            const result: HandlerResponse = await notificationsHandler(event, context);
+            const result: HandlerResponse = await notificationsHandler();
             logHandlerResult(result);
             return result;
         } else if ('version' in event && event.version === '2.0') {

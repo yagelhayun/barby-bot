@@ -20,13 +20,17 @@ export const parseCommand = (text: string | undefined, entities: TelegramEntity[
         throw new UnsupportedCommandError(command);
     }
 
+    if (command === Command.NOTIFY) {
+        return { command: Command.NOTIFY };
+    }
+
     const artistName: string = rest.join(' ').trim();
 
     if (!artistName) {
         throw new MissingArtistNameError();
     }
 
-    return { command: command as Command, artistName };
+    return { command: command as Command.CREATE | Command.DELETE, artistName };
 };
 
 export const handleCreateArtist = async (artistName: string): Promise<void> => {

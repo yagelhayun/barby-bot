@@ -14,7 +14,7 @@ const isRejected = (result: PromiseSettledResult<unknown>): result is PromiseRej
  * Notifications handler: sends telegram messages and returns a status object
  * for test/direct invocation. Top-level main always returns the final Lambda response.
  */
-export const notificationsHandler = async (_event: unknown, _context: unknown): Promise<HandlerResponse> => {
+export const notificationsHandler = async (_event?: unknown, _context?: unknown): Promise<HandlerResponse> => {
     try {
         const artists: ArtistMap = await getArtists();
         setLogMetadata('artistCount', Object.keys(artists).length);
