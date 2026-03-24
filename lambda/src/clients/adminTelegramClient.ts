@@ -14,8 +14,6 @@ export const getTelegramClient = async (): Promise<TelegramClient> => {
     const apiHash: string = env.OWNER_TG_API_HASH;
     const session: string = env.OWNER_TG_STRING_SESSION;
 
-    // The gramjs Logger interface does not match our Winston-based logger structurally,
-    // but at runtime the methods align. The double cast is the necessary interop bridge.
     const baseLogger: GramJsLogger = logger.child({ module: 'AdminTelegramClient' }) as unknown as GramJsLogger;
 
     telegramClient = new TelegramClient(new StringSession(session), apiId, apiHash, {

@@ -20,13 +20,10 @@ export const createGroup = async (artistName: string): Promise<string> => {
             }),
         );
 
-        // TypeUpdates is a union — only Api.Updates and UpdatesCombined carry chats[].
-        // CreateChat always returns one of these, but we guard defensively.
         if (!('chats' in result.updates) || !Array.isArray(result.updates.chats) || result.updates.chats.length === 0) {
             throw new Error(`Unexpected updates shape from CreateChat: ${result.updates.className}`);
         }
 
-        // dialog.id for basic groups is the marked peer ID (-chat.id).
         const chatId = (result.updates.chats[0] as Api.Chat).id.negate().toString();
         logger.info('Telegram group created', { chatId });
         return chatId;
@@ -64,8 +61,6 @@ export const deleteGroup = async (artistName: string): Promise<void> => {
         return;
     }
 
-    // Dialog.id is the marked peer-id (-chatId for basic groups).
-    // messages.DeleteChat expects the raw positive chatId from the entity.
     const chatId = (group.entity as Api.Chat).id;
 
     try {

@@ -30,7 +30,6 @@ const handleEvent = async (event: LambdaEvent, context: unknown): Promise<Handle
             return result;
         } else if ('version' in event && event.version === '2.0') {
             setLogMetadata('handler', 'admin');
-            // Always return 200 to Telegram — non-2xx causes aggressive retries
             logger.info('Admin handler invoked');
             const result: HandlerResponse = await adminHandler(event, context);
             logHandlerResult(result);

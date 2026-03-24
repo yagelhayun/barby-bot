@@ -25,6 +25,9 @@ The same Lambda function handles both invocation types:
 | API Gateway POST `/telegram` | `adminHandler` | Telegram webhook |
 | EventBridge cron | `notificationsHandler` | Every 8 hours |
 
+**Why admin events always return HTTP 200:**
+Telegram's webhook delivery requires a `2xx` response within the timeout window. If the Lambda returns any other status code, Telegram will retry the same update repeatedly. To prevent retry storms, `main` (`index.ts`) unconditionally returns `200` for all admin (API Gateway) events, regardless of what `adminHandler` returns internally. Errors are still surfaced to the owner via a Telegram message and logged to CloudWatch — the non-200 status codes inside `adminHandler` are only meaningful for unit tests and local debugging.
+
 ---
 
 ## Infrastructure
