@@ -6,12 +6,8 @@ import {
 import { logger } from '../utils/config';
 import { addArtist, alignTelegramAndDBStates, alignTelegramAndDBStatesForDeletion, deleteArtist } from '../services/artistsService';
 import { createGroup, deleteGroup, getGroupChatIdByArtistName } from '../services/telegramService';
+import { Command } from '../types';
 import type { TelegramEntity, ParsedCommand } from '../types';
-
-export enum commands {
-    CREATE = '/create',
-    DELETE = '/delete',
-}
 
 export const parseCommand = (text: string | undefined, entities: TelegramEntity[] | undefined): ParsedCommand => {
     if (!entities || entities[0]?.type !== 'bot_command' || !text) {
@@ -20,7 +16,7 @@ export const parseCommand = (text: string | undefined, entities: TelegramEntity[
 
     const [command, ...rest]: string[] = text.trim().split(/\s+/);
 
-    if (!Object.values(commands).includes(command as commands)) {
+    if (!Object.values(Command).includes(command as Command)) {
         throw new UnsupportedCommandError(command);
     }
 
@@ -30,7 +26,7 @@ export const parseCommand = (text: string | undefined, entities: TelegramEntity[
         throw new MissingArtistNameError();
     }
 
-    return { command, artistName };
+    return { command: command as Command, artistName };
 };
 
 export const handleCreateArtist = async (artistName: string): Promise<void> => {

@@ -16,7 +16,7 @@ vi.mock('../../clients/telegramClient.js', () => ({
 }));
 vi.mock('../../utils/config.js', () => ({
     env: {
-        BOT_API_AUTH_TOKEN: 'test-secret',
+        ADMIN_BOT_API_AUTH_TOKEN: 'test-secret',
         OWNER_TG_USER_ID: '12345',
     },
     logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },

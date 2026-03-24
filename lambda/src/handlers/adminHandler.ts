@@ -2,11 +2,11 @@ import { setLogMetadata } from '@yagelhayun/logger/server';
 import { env, logger } from '../utils/config';
 import { buildHandlerResponse } from '../utils/helpers';
 import {
-    commands,
     parseCommand,
     handleCreateArtist,
     handleDeleteArtist,
 } from '../services/adminService';
+import { Command } from '../types';
 import { sendAdminMessage } from '../clients/telegramClient';
 import {
     CommandValidationError,
@@ -29,7 +29,7 @@ import type {
  * In AWS Lambda, the top-level `main` always returns the final HTTP response.
  * This return value is still useful for unit tests and local invocation.
  */
-export const adminHandler = async (event: HttpEvent, _context: unknown): Promise<HandlerResponse | undefined> => {
+export const adminHandler = async (event: HttpEvent, _context: unknown): Promise<HandlerResponse> => {
     logger.debug('Admin handler event received', { event });
 
     const body: TelegramWebhookBody = JSON.parse(event.body);
@@ -59,12 +59,12 @@ export const adminHandler = async (event: HttpEvent, _context: unknown): Promise
         setLogMetadata('artistName', artistName);
 
         switch (command) {
-            case commands.CREATE: {
+            case Command.CREATE: {
                 await handleCreateArtist(artistName);
                 await sendAdminMessage(`נוצרה קבוצה חדשה עבור "${artistName}" בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully added artist');
             }
-            case commands.DELETE: {
+            case Command.DELETE: {
                 await handleDeleteArtist(artistName);
                 await sendAdminMessage(`האמן "${artistName}" נמחק בהצלחה`, chat.id);
                 return buildHandlerResponse(200, 'Successfully deleted artist');
