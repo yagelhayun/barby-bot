@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@yagelhayun/logger": "^0.1.0-alpha.9",
+    "@yagelhayun/logger": "^0.1.0-alpha.10",
     "dotenv": "^17.2.3",
     "envalid": "^8.1.1",
     "postgres": "^3.4.8",
