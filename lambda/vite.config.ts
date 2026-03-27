@@ -7,7 +7,7 @@ export default defineConfig({
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
             formats: ['es'],
-            fileName: () => 'index.js',
+            fileName: () => 'index.mjs',
         },
         rollupOptions: {
             external: (id) => builtinModules.includes(id) || id.startsWith('node:'),
