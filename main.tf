@@ -44,7 +44,7 @@ data "archive_file" "lambda_zip" {
   source_dir  = "${path.module}/lambda"
   output_path = "${path.module}/lambda.zip"
   excludes = [
-    ".env",
+    "*.env*",
     "vitest.config.ts",
     "vite.config.ts",
     "tsconfig.json",
