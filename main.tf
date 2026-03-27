@@ -90,23 +90,47 @@ resource "aws_lambda_function" "barby_bot" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "schedule" {
-  name                = "barby_bot_schedule"
-  schedule_expression = "cron(0 */8 * * ? *)"
+resource "aws_iam_role" "scheduler_role" {
+  name = "barby_bot_scheduler_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "scheduler.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
 }
 
-resource "aws_cloudwatch_event_target" "target" {
-  rule      = aws_cloudwatch_event_rule.schedule.name
-  target_id = "lambda"
-  arn       = aws_lambda_function.barby_bot.arn
+resource "aws_iam_role_policy" "scheduler_lambda_invoke" {
+  name = "barby_bot_scheduler_invoke"
+  role = aws_iam_role.scheduler_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = "lambda:InvokeFunction"
+      Resource = aws_lambda_function.barby_bot.arn
+    }]
+  })
 }
 
-resource "aws_lambda_permission" "allow_eventbridge" {
-  statement_id  = "AllowExecutionFromEventBridge"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.barby_bot.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.schedule.arn
+resource "aws_scheduler_schedule" "barby_bot" {
+  name = "barby_bot_schedule"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression          = "cron(0 */8 * * ? *)"
+  schedule_expression_timezone = "Asia/Jerusalem"
+
+  target {
+    arn      = aws_lambda_function.barby_bot.arn
+    role_arn = aws_iam_role.scheduler_role.arn
+  }
 }
 
 resource "aws_apigatewayv2_api" "barby_api" {
@@ -147,7 +171,7 @@ output "lambda_function_name" {
 }
 
 output "schedule_rule" {
-  value = aws_cloudwatch_event_rule.schedule.name
+  value = aws_scheduler_schedule.barby_bot.name
 }
 
 output "telegram_webhook_url" {
