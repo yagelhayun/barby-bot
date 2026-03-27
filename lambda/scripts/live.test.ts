@@ -33,7 +33,7 @@ interface HttpEvent {
 
 const event: ScheduledEvent | HttpEvent =
     mode === 'notifications'
-        ? { source: 'aws.events' }
+        ? { source: 'aws.scheduler' }
         : {
               version: '2.0',
               routeKey: 'POST /telegram',

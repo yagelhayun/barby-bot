@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
-import { resolve, isAbsolute } from 'path';
+import { resolve } from 'path';
+import { builtinModules } from 'module';
 
 export default defineConfig({
     build: {
@@ -9,7 +10,7 @@ export default defineConfig({
             fileName: () => 'index.js',
         },
         rollupOptions: {
-            external: (id) => !isAbsolute(id) && !id.startsWith('.'),
+            external: (id) => builtinModules.includes(id) || id.startsWith('node:'),
         },
         outDir: 'dist',
         target: 'node24',

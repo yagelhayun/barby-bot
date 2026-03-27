@@ -49,9 +49,11 @@ data "archive_file" "lambda_zip" {
     "vite.config.ts",
     "tsconfig.json",
     "package-lock.json",
+    "package.json",
     "scripts",
     "supabase",
     "src",
+    "node_modules",
   ]
 }
 
@@ -130,6 +132,7 @@ resource "aws_scheduler_schedule" "barby_bot" {
   target {
     arn      = aws_lambda_function.barby_bot.arn
     role_arn = aws_iam_role.scheduler_role.arn
+    input    = jsonencode({ source = "aws.scheduler" })
   }
 }
 

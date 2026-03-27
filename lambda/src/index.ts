@@ -22,7 +22,7 @@ const handleEvent = async (event: LambdaEvent, context: unknown): Promise<Handle
     try {
         setLogMetadata('uuid', randomUUID());
 
-        if ('source' in event && event.source === 'aws.events') {
+        if ('source' in event && (event.source === 'aws.events' || event.source === 'aws.scheduler')) {
             setLogMetadata('handler', 'notifications');
             logger.info('Notifications handler invoked');
             const result: HandlerResponse = await notificationsHandler();
