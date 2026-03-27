@@ -41,26 +41,14 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/lambda"
+  source_dir  = "${path.module}/lambda/dist"
   output_path = "${path.module}/lambda.zip"
-  excludes = [
-    "*.env*",
-    "vitest.config.ts",
-    "vite.config.ts",
-    "tsconfig.json",
-    "package-lock.json",
-    "package.json",
-    "scripts",
-    "supabase",
-    "src",
-    "node_modules",
-  ]
 }
 
 resource "aws_lambda_function" "barby_bot" {
   function_name = "barby_bot"
   filename      = data.archive_file.lambda_zip.output_path
-  handler       = "dist/index.main"
+  handler       = "index.main"
   runtime       = "nodejs24.x"
 
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
