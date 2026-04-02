@@ -49,6 +49,13 @@ export const getGroupChatIdByArtistName = async (artistName: string): Promise<st
     return group.id.toString();
 };
 
+export const filterExistingGroupIds = async (chatIds: string[]): Promise<Set<string>> => {
+    const client = await getTelegramClient();
+    const dialogs = await client.getDialogs();
+    const dialogIds = new Set(dialogs.map(({ id }) => id?.toString()));
+    return new Set(chatIds.filter(id => dialogIds.has(id)));
+};
+
 export const deleteGroup = async (artistName: string): Promise<void> => {
     const client = await getTelegramClient();
 

@@ -2,7 +2,7 @@ import { setLogMetadata } from '@yagelhayun/logger/server';
 import { env, logger } from '../utils/config';
 import { buildHandlerResponse } from '../utils/helpers';
 import { getArtistShows } from '../services/showsService';
-import { getArtists } from '../services/artistsService';
+import { getArtists, filterValidArtists } from '../services/artistsService';
 import { sendNotificationMessage } from '../clients/telegramClient';
 import { DatabaseConnectionError, NoShowsError } from '../utils/errors';
 import type { HandlerResponse, ArtistMap, ArtistShows } from '../types';
@@ -19,9 +19,11 @@ export const notificationsHandler = async (_event?: unknown, _context?: unknown)
         const artists: ArtistMap = await getArtists();
         setLogMetadata('artistCount', Object.keys(artists).length);
 
-        const artistShows: ArtistShows[] = await getArtistShows(Object.keys(artists));
+        const validArtists: ArtistMap = await filterValidArtists(artists);
+
+        const artistShows: ArtistShows[] = await getArtistShows(Object.keys(validArtists));
         const messages: Promise<void>[] = artistShows.flatMap(({ artist, shows }: ArtistShows) => {
-            const chatId: string = artists[artist];
+            const chatId: string = validArtists[artist];
             return shows.map((show: string) => sendNotificationMessage(show, chatId));
         });
         setLogMetadata('messageCount', messages.length);

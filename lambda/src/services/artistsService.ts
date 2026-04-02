@@ -8,6 +8,7 @@ import {
 import { FailedToAddArtistError, GroupNotFoundError, GroupNotFoundInDatabaseError } from '../utils/errors';
 import {
     getGroupChatIdByArtistName as getGroupChatIdByArtistNameFromTelegram,
+    filterExistingGroupIds,
 } from './telegramService';
 import { logger } from '../utils/config';
 import type { ArtistMap } from '../types';
@@ -126,7 +127,34 @@ export const alignTelegramAndDBStatesForCreation = async (artistName: string): P
     } else {
         logger.info('Artist found in DB but not in Telegram, removing from DB');
         await deleteArtist(artistName);
+        return true;
     }
 
     return false;
+};
+
+export const filterValidArtists = async (artists: ArtistMap): Promise<ArtistMap> => {
+    let existingIds: Set<string>;
+    try {
+        existingIds = await filterExistingGroupIds(Object.values(artists));
+    } catch (err) {
+        logger.warn('Failed to fetch Telegram dialogs, skipping stale artist check', { err });
+        return artists;
+    }
+
+    const validArtists: ArtistMap = {};
+    for (const [name, chatId] of Object.entries(artists)) {
+        if (existingIds.has(chatId)) {
+            validArtists[name] = chatId;
+        } else {
+            logger.warn('Telegram group not found, removing stale artist from DB', { name, chatId });
+            try {
+                await deleteArtist(name);
+            } catch (err) {
+                logger.error('Failed to remove stale artist from DB', { name, err });
+            }
+        }
+    }
+
+    return validArtists;
 };
