@@ -1,7 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { NoShowsError } from '../../utils/errors';
 
-vi.mock('../../services/artistsService.js', () => ({ getArtists: vi.fn() }));
+vi.mock('../../services/artistsService.js', () => ({ getArtists: vi.fn(), filterValidArtists: vi.fn() }));
 vi.mock('../../services/showsService.js', () => ({ getArtistShows: vi.fn() }));
 vi.mock('../../clients/telegramClient.js', () => ({ sendNotificationMessage: vi.fn() }));
 vi.mock('../../utils/config.js', () => ({
@@ -10,7 +10,7 @@ vi.mock('../../utils/config.js', () => ({
 }));
 
 const { notificationsHandler } = await import('../notificationsHandler.js');
-const { getArtists } = await import('../../services/artistsService.js');
+const { getArtists, filterValidArtists } = await import('../../services/artistsService.js');
 const { getArtistShows } = await import('../../services/showsService.js');
 const { sendNotificationMessage } = await import('../../clients/telegramClient.js');
 const { logger } = await import('../../utils/config.js');
@@ -18,6 +18,7 @@ const { logger } = await import('../../utils/config.js');
 describe('notificationsHandler', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        (filterValidArtists as ReturnType<typeof vi.fn>).mockImplementation((artists) => Promise.resolve(artists));
     });
 
     describe('success', () => {
